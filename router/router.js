@@ -28,7 +28,7 @@ const { getWarehouseStock, updateStockReceive, deleteStockReceive, getAvailableS
 const { createSupplier, getAllSuppliers, getSupplierById, updateSupplier, deleteSupplier } = require("../controllers/supplier.controller");
 const { getNextProductionNo, deleteProduction, createProduction, getAllProductions, getProductionById, updateProduction, getProductionsByWarehouse } = require("../controllers/production.controllers");
 const { getRawMaterialsByWarehouse, createWarehouse, getAllWarehouses, getWarehouseById, updateWarehouse, deleteWarehouse, getAllFinishedGoodsStock, getFinishedGoodsStockByWarehouse } = require("../controllers/warehouse.controller");
-const { createRawMaterial, getAllRawMaterials, getRawMaterialById, updateRawMaterial, deleteRawMaterial, getRawMaterialDropdown, getRawMaterialStockByWarehouse } = require("../Controllers/rawMaterial.controller");
+const { createRawMaterial, getAllRawMaterials, getRawMaterialById, updateRawMaterial, deleteRawMaterial, getRawMaterialDropdown, getRawMaterialStockByWarehouse } = require("../controllers/rawmaterial.controller");
 const { createMainCategory, getAllMainCategories, getMainCategoryById, updateMainCategory, deleteMainCategory } = require("../controllers/maincategory.controller");
 const { createProductionInstruction, getAllProductionInstructions, getProductionInstructionById, updateProductionInstruction, acceptProductionInstruction, cancelProductionInstruction, deleteProductionInstruction, getNextInstructionNo, getProductionInstructionsByWarehouse } = require("../controllers/production-instruction.controller");
 

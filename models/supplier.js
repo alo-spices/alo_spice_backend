@@ -4,7 +4,7 @@ const supplierSchema = new mongoose.Schema({
 
     // ======================
     // BASIC DETAILS
-    // ======================
+    // ======================   
 
     supplierName: {
         type: String,
@@ -42,7 +42,7 @@ const supplierSchema = new mongoose.Schema({
 
     // ======================
     // ADDRESS
-    // ======================
+    // ======================   
 
     address: {
         type: String,
@@ -76,7 +76,7 @@ const supplierSchema = new mongoose.Schema({
 
     // ======================
     // TAX DETAILS
-    // ======================
+    // ======================   
 
     gstNumber: {
         type: String,
@@ -90,7 +90,7 @@ const supplierSchema = new mongoose.Schema({
 
     // ======================
     // PAYMENT DETAILS
-    // ======================
+    // ======================   
 
     paymentTerms: {
         type: String,
@@ -104,7 +104,7 @@ const supplierSchema = new mongoose.Schema({
 
     // ======================
     // BANK DETAILS
-    // ======================
+    // ======================   
 
     accountHolderName: {
         type: String,
@@ -128,7 +128,7 @@ const supplierSchema = new mongoose.Schema({
 
     // ======================
     // STATUS
-    // ======================
+    // ======================   
 
     status: {
         type: String,

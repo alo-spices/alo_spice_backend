@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../middleware/upload");
 const authMiddleware = require("../middleware/authMiddleware");
-
+const { getDashboard } = require("../controllers/dashboard.controller");
 const { adminRegister, adminLogin, adminLogout, registerUser, employeeSelfRegister, loginUser, assignUser, getEmployeesByDistributor } = require("../controllers/auth.controller");
 const { getPendingUsers, approveUser, rejectUser, changeStatus } = require("../controllers/admin.controller");
 const { getAllUsers, getUserById, updateUser, deleteUser, getProfile, updateProfile, updateUserStatus } = require("../controllers/user.controller");
@@ -36,6 +36,8 @@ const { getNextStockTransferNo, createStockTransfer, getAllStockTransfers, getSt
     getDistributorTransferById, receiveStockTransfer, getMyDistributorStock, getDistributorStockHistory, getMyEmployees, getMyEmployeeById } = require("../controllers/stock-transfer.controller");
 
 
+
+router.get("/get-dashboard", authMiddleware, getDashboard);
 
 router.post("/admin-register", adminRegister);
 router.post("/admin-login", adminLogin);

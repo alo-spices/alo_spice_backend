@@ -1,0 +1,961 @@
+POST http://localhost:3002/api/admin-register
+Content-Type: application/json
+
+{
+  "firstName": "Admin",
+  "lastName": "",
+  "mobile": "9000000000",
+  "email": "admin@alospices.com",
+  "password": "alospices@2026"
+}
+
+###
+POST http://localhost:3002/api/admin-login
+Content-Type: application/json
+
+{
+    "mobile":"9391551158",
+    "password":"admin@123"
+}
+
+###
+PUT http://localhost:3002/api/approve-user/6a60ddd589bb3929b8e3994e
+Content-Type: application/json
+
+{
+    "isApproved":true
+}
+###
+POST http://localhost:3002/api/user-register
+
+###
+post http://localhost:3002/api/user-login
+
+{
+  "mobile": "6303344137",
+  "password": "subadmin@gmail.com"
+}
+
+###
+GET http://localhost:3002/api/pending-users
+Content-Type: application/json
+
+###
+PUT http://localhost:3002/api/approve-user/6a214ae8b0da82a805b3d8e0
+Content-Type: application/json
+
+###
+GET http://localhost:3002/api/getall-users
+Content-Type: application/json
+
+###
+GET http://localhost:3002/api/getbyid-users/6a214703b0da82a805b3d8c2
+Content-Type: application/json
+
+###
+PUT http://localhost:3002/api/update-users/6a214ae8b0da82a805b3d8e0
+
+###
+DELETE http://localhost:3002/api/delete-users/6a21491bb0da82a805b3d8d3
+Content-Type: application/json
+
+###
+PUT  http://localhost:3002/api/reject-user/6a214703b0da82a805b3d8c2
+Content-Type: application/json
+
+###
+PUT http://localhost:3002/api/change-status/6a6dc1d0809b797ee0b92eef
+Content-Type: application/json
+
+{
+    "status":"Active"
+}
+
+###
+GET http://localhost:3002/api/get-profile/6a60ddd589bb3929b8e3994e
+Content-Type: application/json
+
+###
+PUT http://localhost:3002/api/update-profile/6a214703b0da82a805b3d8c2
+
+###
+POST http://localhost:3002/api/caret-areas
+Content-Type: application/json
+
+{
+  "areaName": "Narasapuram",
+  "areaCode": "NSP001",
+  "city": "Narasapuram",
+  "district": "West Godavari",
+  "state": "Andhra Pradesh",
+  "pincode": "534275"
+}
+
+###
+GET http://localhost:3002/api/getall-areas
+Content-Type: application/json
+
+###
+GET http://localhost:3002/api/getbyid-areas/6a217a025d5549e7f55a0973
+Content-Type: application/json
+
+###
+PUT http://localhost:3002/api/update-areas/6a217b115d5549e7f55a097b
+Content-Type: application/json
+
+{
+  "areaName": "Narasapuram",
+  "areaCode": "NSP002",
+  "city": "Narasapuram",
+  "district": "West Godavari",
+  "state": "Andhra Pradesh",
+  "pincode": "534275"
+}
+
+###
+DELETE http://localhost:3002/api/Delete-areas/6a217b115d5549e7f55a097b
+Content-Type: application/json
+
+###
+POST http://localhost:3002/api/beat-plans
+Content-Type: application/json
+
+{
+    "beatName": "Bhimavaram Monday Beat",
+    "description": "Monday Retailer Visits",
+    "area": "6a217a025d5549e7f55a0973",
+    "route": "6a23131fbfd4460f26abcbe6",
+    "salesman": "6a214703b0da82a805b3d8c2",
+    "day": "Monday"
+}
+
+###
+POST http://localhost:3002/api/create-brands
+
+###
+GET http://localhost:3002/api/get-brands
+Content-Type: application/json
+
+###
+GET http://localhost:3002/api/getbyid-brands/6a21871a8915cac48bc147aa
+Content-Type: application/json
+
+###
+PUT http://localhost:3002/api/update-brands
+
+###
+POST http://localhost:3002/api/create-categories
+
+###
+GET http://localhost:3002/api/getall-categories
+Content-Type: application/json
+
+###
+GET http://localhost:3002/api/getCategory-ById/6a224bf779208345ae6eca24
+Content-Type: application/json
+
+###
+put http://localhost:3002/api/update-categories-ById/6a224bf779208345ae6eca24
+
+###
+DELETE http://localhost:3002/api/update-categories-ById/6a224bf779208345ae6eca24
+Content-Type: application/json
+
+###
+POST http://localhost:3001/api/create-products
+
+###
+GET http://localhost:3002/api/getall-products
+Content-Type: application/json
+
+###
+GET http://localhost:3002/api/getbyid-products/6a2308db0b125e5c260b6a0f
+Content-Type: application/json
+
+###
+PUT http://localhost:3002/api/update-products/6a2277aa1234567890abcd12
+
+###
+DELETE http://localhost:3002/api/delete-products/6a2308db0b125e5c260b6a0f
+Content-Type: application/json
+
+
+###
+POST  http://localhost:3002/api/create-routes
+Content-Type: application/json
+
+{
+    "routeName": "Bhimavaram Route 1",
+    "routeCode": "BVR001",
+    "area": "6a217a025d5549e7f55a0973",
+    "description": "Main Bhimavaram Market Route",
+    "monthlySalesTarget": 500000,
+    "monthlyCollectionTarget": 450000
+}
+
+###
+GET http://localhost:3002/api/getall-routes
+Content-Type: application/json
+
+###
+GET http://localhost:3002/api/getall-beat-plans
+Content-Type: application/json
+
+
+###
+GET http://localhost:3002/api/getbyid-beat-plans/6ab268bdf799df29d2ae073e
+Content-Type: application/json
+
+
+
+###
+GET http://localhost:3002/api/getbyid-routes/6a23131fbfd4460f26abcbe6
+Content-Type: application/json
+
+###
+POST http://localhost:3002/api/create-parties
+Content-Type: application/json
+
+{
+    "partyType": "Retailer",
+    "partyCode": "RET001",
+    "partyName": "Sri Lakshmi Traders",
+    "shopName": "Lakshmi Kirana Store",
+    "ownerName": "Ramesh",
+    "mobile": "9876543210",
+    "whatsappNumber": "9876543210",
+    "area": "6aace221283ee01d5bfdc150",
+    "route": "6aace235283ee01d5bfdc157",
+    "assignedSalesman": "6aacf818283ee01d5bfdc1cf",
+    "address": "Main Road",
+    "city": "Bhimavaram",
+    "district": "West Godavari",
+    "pincode": "534201",
+    "creditLimit": 50000,
+    "creditDays": 15
+}
+
+###
+PUT http://localhost:3002/api/update-parties/6a6c8acf1f8a6e384155ff08
+Content-Type: application/json
+
+{
+    "latitude": "17.498937",
+    "longitude": "78.389744"
+}
+
+###
+GET http://localhost:3002/api/getall-parties
+Content-Type: application/json
+
+###
+GET http://localhost:3002/api/getbyid-parties/6aae9e6b93d312ae9116d379
+Content-Type: application/json
+
+###
+put http://localhost:3002/api/update-parties/6a23155cbfd4460f26abcc09
+Content-Type: application/json
+
+{
+    "partyType": "Retailer",
+    "partyCode": "RET001",
+    "partyName": "Sri Lakshmi Traders",
+    "shopName": "Lakshmi Kirana Store",
+    "ownerName": "Ramesh",
+    "mobile": "9876543210",
+    "whatsappNumber": "9876543210",
+    "area": "6a217a025d5549e7f55a0973",
+    "route": "6a23131fbfd4460f26abcbe6",
+    "assignedSalesman": "6a214703b0da82a805b3d8c2",
+    "address": "Main Road",
+    "city": "Bhimavaram",
+    "district": "West Godavari",
+    "pincode": "534201",
+    "creditLimit": 50000,
+    "creditDays": 15
+}
+
+###
+GET http://localhost:3002/api/get-attendances
+Content-Type: application/json 
+
+###
+POST http://localhost:3002/api/create-attendances 
+
+###
+GET http://localhost:3002/api/attendance/today/6a21466bb0da82a805b3d8be
+Content-Type: application/json 
+
+###
+GET http://localhost:3002/api/attendance/monthly/6a60ddd589bb3929b8e3994e
+Content-Type: application/json 
+
+###
+GET http://localhost:3002/api/attendance/summary/6aacf818283ee01d5bfdc1cf
+Content-Type: application/json 
+
+###
+GET http://localhost:3002/api/get-visits
+Content-Type: application/json
+
+###
+POST http://localhost:3002/api/start-visit
+Content-Type: application/json
+
+{
+    "employee":"6aacf818283ee01d5bfdc1cf",
+    "party":"6aae9e6b93d312ae9116d379",
+    "area":"6aace221283ee01d5bfdc150",
+    "route":"6aace235283ee01d5bfdc157",
+    "startLatitude":16.5449,
+    "startLongitude":81.5212,
+    "startAddress":"Bhimavaram"
+}
+
+###
+PUT http://localhost:3002/api/complete-visit/6a23bfd7efbbbd2804ed1d43
+Content-Type: application/json
+
+{
+    "endLatitude": 16.5449,
+    "endLongitude": 81.5212,
+    "endAddress": "Bhimavaram",
+
+    "visitOutcome": "Order Taken",
+
+    "orderCreated": true,
+    "orderCount": 2,
+    "orderAmount": 5000,
+
+    "collectionDone": true,
+    "collectionAmount": 3000
+}
+
+###
+PUT http://localhost:3002/api/cancel-visit/6a23bfd7efbbbd2804ed1d43
+Content-Type: application/json
+
+{
+    "notes": "close shope "
+}
+
+###
+PUT http://localhost:3002/api/add-visit-notes/6a23bfd7efbbbd2804ed1d43
+Content-Type: application/json
+
+{
+    "notes": "Owner requested product samples",
+    "nextFollowUpDate": "2026-06-10"
+}
+
+###
+PUT http://localhost:3002/api/upload-visit-photo/6a23bfd7efbbbd2804ed1d43
+
+###
+GET http://localhost:3002/api/today-visits/6a60ddd589bb3929b8e3994e
+Content-Type: application/json
+
+###
+GET http://localhost:3002/api/visit-summary/6a21466bb0da82a805b3d8be
+Content-Type: application/json
+
+###
+POST http://localhost:3002/api/create-order
+Content-Type: application/json
+
+{
+  "party": "6aae9e6b93d312ae9116d379",
+  "partyType": "Retailer",
+  "employee": "6aacf818283ee01d5bfdc1cf",
+  "visit": "6aae9eb393d312ae9116d37c",
+
+  "subTotal": 1000,
+  "discountAmount": 100,
+  "taxableAmount": 900,
+  "gstAmount": 162,
+  "grandTotal": 1062,
+
+  "remarks": "Order taken from retailer"
+}
+
+###
+GET http://localhost:3002/api/get-orders
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhYWE4MTYyYjIyZWVhYjRkMzA4ZDllNiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc5MDE3MzU1MCwiZXhwIjoxNzkwNzc4MzUwfQ.HbfVEPN0H6Tv2zliNHwU5D1Us5l8Mw523HqBDRnaQ5A
+
+
+###
+GET http://localhost:3002/api/getbyid-orders/6ab62e2c211de0e91f532732
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhYWE4MTYyYjIyZWVhYjRkMzA4ZDllNiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc5MDE3MzU1MCwiZXhwIjoxNzkwNzc4MzUwfQ.HbfVEPN0H6Tv2zliNHwU5D1Us5l8Mw523HqBDRnaQ5A
+
+
+###
+GET http://localhost:3002/api/getbyid-orders/6a23e4c374a710ecb0335728
+Content-Type: application/json
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhYWE4MTYyYjIyZWVhYjRkMzA4ZDllNiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc5MDE3MzU1MCwiZXhwIjoxNzkwNzc4MzUwfQ.HbfVEPN0H6Tv2zliNHwU5D1Us5l8Mw523HqBDRnaQ5A
+
+
+###
+PUT http://localhost:3002/api/update-orders/6a23e4c374a710ecb0335728
+Content-Type: application/json
+
+{
+    "subTotal": 6000,
+    "discountAmount": 300,
+    "taxableAmount": 5700,
+    "gstAmount": 285,
+    "grandTotal": 5985,
+
+    "remarks": "Updated Order"
+}
+
+###
+PUT http://localhost:3002/api/cancel-orders/6a23e4c374a710ecb0335728
+Content-Type: application/json
+
+{
+    "remarks": "Customer Cancelled"
+}
+
+###
+PUT http://localhost:3002/api/approve-order/6a23e4c374a710ecb0335728
+
+###
+PUT http://localhost:3002/api/reject-order/6a23e4c374a710ecb0335728
+Content-Type: application/json
+
+{
+    "remarks": "Stock Not Available"
+}
+
+###
+PUT http://localhost:3002/api/process-order/6a23e4c374a710ecb0335728
+Content-Type: application/json
+
+###
+PUT http://localhost:3002/api/mark-delivered/6a23e4c374a710ecb0335728
+
+###
+GET http://localhost:3002/api/party-orders/6a23155cbfd4460f26abcc09
+Content-Type: application/json
+
+###
+GET http://localhost:3002/api/employee-orders/6aacf818283ee01d5bfdc1cf
+Content-Type: application/json
+
+###
+POST http://localhost:3002/api/create-order-items
+Content-Type: application/json
+
+{
+    "order":"6a23f5e6aa386897f1779aad",
+
+    "product":"6a2308db0b125e5c260b6a0f",
+
+    "variantId":"6a2308db0b125e5c260b6a10",
+
+    "packSize":"500 GM",
+
+    "price":250,
+
+    "discountAmount":20,
+
+    "gstPercentage":5,
+
+    "quantity":10
+}
+
+###
+PUT http://localhost:3002/api/update-order-items/6a23155cbfd4460f26abcc09
+Content-Type: application/json
+
+{
+    "price":3000,
+    "quantity":15,
+    "discountAmount":30
+}
+
+###
+DELETE http://localhost:3002/api/delete-order-items/6a23155cbfd4460f26abcc09
+Content-Type: application/json
+{
+    "success": true,
+    "message": "Order Item Deleted Successfully"
+}
+
+###
+GET http://localhost:3002/api/get-collections
+Content-Type: application/json
+
+
+
+###
+GET http://localhost:3002/api/get-collection/6ab6783d058654240cff0619
+Content-Type: application/json
+
+
+###
+POST http://localhost:3002/api/create-collection
+Content-Type: application/json
+
+{
+    "party": "68429f1234567890abcdef12",
+    "partyType": "Distributor",
+    "employee": "6a21466bb0da82a805b3d8be",
+    "collectedAmount": 5000,
+    "paymentMode": "UPI",
+    "transactionNumber": "UPI123456",
+    "previousOutstanding": 10000,
+    "remainingOutstanding": 5000,
+    "remarks": "Partial payment received"
+}
+
+
+###
+POST http://localhost:3002/api/careate-beat-plans
+Content-Type: application/json
+
+{
+ "beatName": "Jubli Hilss Tuesday Beat",
+  "description": "Retail shop visit",
+  "area": "6a217a025d5549e7f55a0973",
+  "route": "6890f82db8a7d9f5c6e12346",
+  "salesman": "6a60ddd589bb3929b8e3994e",
+   "day": "Tuesday",
+  "shops": [
+    "6a23155cbfd4460f26abcc09",
+    "6a6c85791f8a6e384155feee",
+    "6a6c8acf1f8a6e384155ff08"
+  ],
+  "status": "Active"
+}
+
+###
+GET http://localhost:3002/api/employee-visits/6a60ddd589bb3929b8e3994e
+Content-Type: application/json
+
+###
+POST http://localhost:3002/api/create-deliveries
+Content-Type: application/json
+
+{
+    "order": "6aae9ec593d312ae9116d383",
+    "party": "6aae9e6b93d312ae9116d379"
+}
+
+###
+GET http://localhost:3002/api/getall-deliveries
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhYjAwNWU2ZWYxZmFhNTcyODdiOTY5ZiIsInJvbGUiOiJEZWxpdmVyeUJveSIsIndhcmVob3VzZUlkIjpudWxsLCJhcmVhSWQiOiI2YWFjZTIyMTI4M2VlMDFkNWJmZGMxNTAiLCJpYXQiOjE3OTA2NTk1MDEsImV4cCI6MTc5MTI2NDMwMX0.9m9FCY1JDLIhz86LyXBEc5KoiTfCIVKfjcM-6JS0soo
+
+###
+GET http://localhost:3002/api/getbyid-deliveries/6ab626a1c307cfef16b00ca4
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhYWE4MTYyYjIyZWVhYjRkMzA4ZDllNiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc5MDE3MzU1MCwiZXhwIjoxNzkwNzc4MzUwfQ.HbfVEPN0H6Tv2zliNHwU5D1Us5l8Mw523HqBDRnaQ5A
+
+
+###
+GET http://localhost:3002/api/get-delivery-boy-completed-deliveries
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhYjAwNWU2ZWYxZmFhNTcyODdiOTY5ZiIsInJvbGUiOiJEZWxpdmVyeUJveSIsIndhcmVob3VzZUlkIjpudWxsLCJhcmVhSWQiOiI2YWFjZTIyMTI4M2VlMDFkNWJmZGMxNTAiLCJpYXQiOjE3OTA2NTk1MDEsImV4cCI6MTc5MTI2NDMwMX0.9m9FCY1JDLIhz86LyXBEc5KoiTfCIVKfjcM-6JS0soo
+
+
+###
+GET http://localhost:3002/api/get-delivery-boy-pending-deliveries
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhYjAwNWU2ZWYxZmFhNTcyODdiOTY5ZiIsInJvbGUiOiJEZWxpdmVyeUJveSIsIndhcmVob3VzZUlkIjpudWxsLCJhcmVhSWQiOiI2YWFjZTIyMTI4M2VlMDFkNWJmZGMxNTAiLCJpYXQiOjE3OTA2NTk1MDEsImV4cCI6MTc5MTI2NDMwMX0.9m9FCY1JDLIhz86LyXBEc5KoiTfCIVKfjcM-6JS0soo
+
+
+###
+GET http://localhost:3002/api/get-delivery-boy-collections
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhYjAwNWU2ZWYxZmFhNTcyODdiOTY5ZiIsInJvbGUiOiJEZWxpdmVyeUJveSIsIndhcmVob3VzZUlkIjpudWxsLCJhcmVhSWQiOiI2YWFjZTIyMTI4M2VlMDFkNWJmZGMxNTAiLCJpYXQiOjE3OTA2NTk1MDEsImV4cCI6MTc5MTI2NDMwMX0.9m9FCY1JDLIhz86LyXBEc5KoiTfCIVKfjcM-6JS0soo
+
+
+
+
+###
+GET http://localhost:3002/api/employee-outstanding/6aacf818283ee01d5bfdc1cf
+Content-Type: application/json
+
+###
+PUT http://localhost:3002/api/update-deliveries/6a260001abcdef1234567890
+Content-Type: application/json
+
+{
+    "remarks": "Delivery rescheduled"
+}
+
+###
+PUT http://localhost:3002/api/assign-delivery-boy/6a260001abcdef1234567890
+Content-Type: application/json
+
+{
+    "deliveryBoy": "6a21491bb0da82a805b3d8d3"
+}
+
+###
+PUT http://localhost:3002/api/dispatch-delivery/6a252517b4e42e278a977ccb
+Content-Type: application/json
+
+{
+    "dispatchedBy":"6a212d2cccce993aaa52a454"
+}
+
+###
+PUT http://localhost:3002/api/mark-delivery-completed/6a252517b4e42e278a977ccb
+Content-Type: application/json
+
+{
+    "receiverName":"Ramesh",
+    "receiverMobile":"9876543210",
+    "latitude":16.5449,
+    "longitude":81.5212,
+    "deliveryAddress":"Bhimavaram Main Road"
+}
+
+###
+PUT http://localhost:3002/api/mark-delivery-failed/6a252517b4e42e278a977ccb
+Content-Type: application/json
+
+{
+    "remarks":"Shop Closed"
+}
+
+###
+POST http://localhost:3002/api/create-stock
+Content-Type: application/json
+
+{
+    "product": "6a2308db0b125e5c260b6a0f",
+    "variantId": "6a2309a40b125e5c260b6a15",
+    "packSize": "500 GM",
+
+    "party": "6a23155cbfd4460f26abcc09",
+
+    "availableQuantity": 500,
+    "reservedQuantity": 50,
+    "damagedQuantity": 5,
+
+    "minimumStockLevel": 100
+}
+
+###
+GET http://localhost:3002/api/get-stock
+Content-Type: application/json
+
+###
+PUT http://localhost:3002/api/update-stock/6a252aab58a762f7c3529fa4
+Content-Type: application/json
+
+{
+    "minimumStockLevel": 700,
+    "status": "Active"
+}
+
+###
+PUT http://localhost:3002/api/increase-stock/6a252aab58a762f7c3529fa4
+Content-Type: application/json
+
+{
+    "quantity": 200
+}
+
+###
+PUT http://localhost:3002/api/decrease-stock/6a252aab58a762f7c3529fa4
+Content-Type: application/json
+
+{
+    "quantity": 50
+}
+
+###
+GET http://localhost:3002/api/low-stock
+Content-Type: application/json
+
+###
+GET http://localhost:3002/api/stock-summary
+Content-Type: application/json
+
+###
+GET http://localhost:3002/api/get-transactions
+Content-Type: application/json
+
+###
+GET http://localhost:3002/api/getbyid-transactions/6a27a1507f5c838aff748265
+Content-Type: application/json
+
+###
+POST http://localhost:3002/api/stock-in
+Content-Type: application/json
+
+{
+  "stock": "6a252aab58a762f7c3529fa4",
+  "quantity": 100,
+  "remarks": "New Purchase",
+  "createdBy": "6a2130b5a8b33f73760ed71b"
+}
+
+###
+POST http://localhost:3002/api/stock-out
+Content-Type: application/json
+
+{
+  "stock": "6a252aab58a762f7c3529fa4",
+  "quantity": 20,
+  "remarks": "Sales Order",
+  "createdBy": "6a214ae8b0da82a805b3d8e0"  //Distributor_id
+}
+
+###
+POST http://localhost:3002/api/adjust-stock
+Content-Type: application/json
+
+{
+  "stock": "6a252aab58a762f7c3529fa4",
+  "quantity": 550,
+  "remarks": "Physical Audit Adjustment",
+  "createdBy": "6a214ae8b0da82a805b3d8e0"  //Distributor_id
+}
+
+###
+POST http://localhost:3002/api/return-stock
+Content-Type: application/json
+
+{
+  "stock": "6a252aab58a762f7c3529fa4",
+  "quantity": 10,
+  "remarks": "Customer Return",
+  "createdBy": "6a214ae8b0da82a805b3d8e0" //Distributor_id
+}
+
+###
+POST http://localhost:3002/api/create-notification
+Content-Type: application/json
+
+{
+    "user":"6a214ae8b0da82a805b3d8e0",
+    "title":"Welcome",
+    "message":"Welcome to TinSpices CRM",
+    "type":"General",
+    "redirectModule":"Dashboard"
+}
+
+###
+GET http://localhost:3002/api/get-notifications
+Content-Type: application/json
+
+###
+PUT http://localhost:3002/api/mark-notification-read/6a27d02b3fe7ac04566d55ac
+Content-Type: application/json
+
+###
+DELETE http://localhost:3002/api/delete-notification/6a27d02b3fe7ac04566d55ac
+Content-Type: application/json
+
+###
+POST http://localhost:3002/api/send-order-notification
+Content-Type: application/json
+
+{
+    "user": "6a214ae8b0da82a805b3d8e0",
+    "orderId": "6a23e4c374a710ecb0335728",
+    "orderNumber": "ORD1001"
+}
+
+###
+POST http://localhost:3002/api/send-collection-notification
+Content-Type: application/json
+
+{
+    "user": "6a214ae8b0da82a805b3d8e0",
+    "collectionId": "6a27d2fa3fe7ac04566d55b7",
+    "amount": 5000
+}
+
+###
+POST http://localhost:3002/api/send-stock-alert
+Content-Type: application/json
+
+{
+    "user": "6a214ae8b0da82a805b3d8e0",
+    "productName": "Cloves 500 GM",
+    "stockId": "6a252aab58a762f7c3529fa4"
+}
+
+###
+POST http://localhost:3002/api/apply-leave
+Content-Type: application/json
+
+{
+    "employee":"6a214703b0da82a805b3d8c2",
+    "leaveType":"Casual",
+    "fromDate":"2026-06-15",
+    "toDate":"2026-06-16",
+    "reason":"Personal Work"
+}
+
+###
+GET http://localhost:3002/api/get-leaves
+Content-Type: application/json
+
+###
+PUT http://localhost:3002/api/update-leave/6a27d602fedd2fc5a3f5be68
+Content-Type: application/json
+
+{
+    "reason":"Family Function"
+}
+
+###
+PUT http://localhost:3002/api/approve-leave/6a27d602fedd2fc5a3f5be68
+Content-Type: application/json
+
+{
+    "approvedBy":"6a214ae8b0da82a805b3d8e0"
+}
+
+###
+PUT http://localhost:3002/api/reject-leave/6a27d602fedd2fc5a3f5be68
+Content-Type: application/json
+
+{
+    "approvedBy":"6a214ae8b0da82a805b3d8e0"
+}
+
+###
+POST http://localhost:3002/api/create-target
+Content-Type: application/json
+
+{
+    "employee":"6a214703b0da82a805b3d8c2",
+    "month":6,
+    "year":2026,
+    "salesTarget":500000,
+    "collectionTarget":400000,
+    "visitTarget":300
+}
+
+
+###
+GET http://localhost:3002/api/warehouse-raw-materials/6a702ac39599f1f0eb1f4833
+Content-Type: application/json
+
+
+###
+GET http://localhost:3002/api/raw-material-stock/6a702ac39599f1f0eb1f4833
+Content-Type: application/json
+
+###
+GET http://localhost:3002/api/getallwarehouse
+Content-Type: application/json
+
+
+
+
+###
+GET http://localhost:3002/api/get-all-productions
+Content-Type: application/json
+
+
+###
+GET http://localhost:3002/api/getProductionInstructionById/6a8bda16b632dd728e2b526d
+Content-Type: application/json
+
+
+
+###
+GET http://localhost:3002/api/getProductionById/6a83dc5f8bdfa5e78892f551
+Content-Type: application/json
+
+###
+GET http://localhost:3002/api/production-instruction/warehouse/6a702b159599f1f0eb1f4836
+Content-Type: application/json
+ 
+
+   
+    ###
+    GET http://localhost:3002/api/getProductionInstructionById/6a8bda16b632dd728e2b526d
+    Content-Type: application/json
+
+###
+GET http://localhost:3002/api/finished-goods-stock/warehouse/6a702b159599f1f0eb1f4836
+Content-Type: application/json
+ 
+
+###
+GET http://localhost:3002/api/raw-material-stock/6a702b159599f1f0eb1f4836
+Content-Type: application/json
+ 
+###
+GET http://localhost:3002/api/get-all-raw-materials
+Content-Type: application/json
+
+
+###
+GET http://localhost:3002/api/getbyid-raw-material/6a76da9249609e0270276894
+Content-Type: application/json
+ 
+
+###
+GET http://localhost:3002/api/finished-goods-stock
+Content-Type: application/json  
+   
+
+###
+GET http://localhost:3002/api//finished-goods-stock/CLV123
+Content-Type: application/json 
+
+   
+
+###
+GET http://localhost:3002/api/get-all-stock-transfers
+Content-Type: application/json 
+   
+
+###
+GET http://localhost:3002/api/incoming-transfers/6aae5c68829aa6016177bbac
+Content-Type: application/json 
+   
+###
+GET http://localhost:3002/api/getStockTransferById/6aae5c68829aa6016177bbac
+Content-Type: application/json 
+
+###
+GET http://localhost:3002/api/getall-deliveries
+Content-Type: application/json 
+
+
+ 
+###
+GET http://localhost:3002/api/get-outstanding
+Content-Type: application/json 
+
+
+###
+GET http://localhost:3002/api/get-party-outstanding/6ab264495df57eaeddb44197
+Content-Type: application/json 
+
+
+
+###
+GET http://localhost:3002/api/get-employee-collection-summary/6aacf818283ee01d5bfdc1cf
+Content-Type: application/json 
+
+
+
+###
+GET http://localhost:3002/api/getall-deliveries
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhYjAwNWU2ZWYxZmFhNTcyODdiOTY5ZiIsInJvbGUiOiJEZWxpdmVyeUJveSIsIndhcmVob3VzZUlkIjpudWxsLCJhcmVhSWQiOiI2YWFjZTIyMTI4M2VlMDFkNWJmZGMxNTAiLCJpYXQiOjE3OTA1NzI2OTEsImV4cCI6MTc5MTE3NzQ5MX0.6xqwu6H-6IwuKwU8wy-ZKfknPtrd9_gEY-c86Yb3rRU
+
+
+###
+GET http://localhost:3002/api/employee-dashboard/6ab005e6ef1faa57287b969f
+Content-Type: application/json
+
+ 
+
+ 

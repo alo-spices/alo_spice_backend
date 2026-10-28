@@ -872,7 +872,7 @@ Content-Type: application/json
 
 
 ###
-GET http://localhost:3002/api/getProductionById/6a83dc5f8bdfa5e78892f551
+GET http://localhost:3002/api/getProductionById/6adeecaf2d32bfa93e1e1a5f
 Content-Type: application/json
 
 ###
@@ -881,9 +881,9 @@ Content-Type: application/json
  
 
    
-    ###
-    GET http://localhost:3002/api/getProductionInstructionById/6a8bda16b632dd728e2b526d
-    Content-Type: application/json
+###
+GET http://localhost:3002/api/getProductionInstructionById/6adb525c3e753719a7fb631f
+Content-Type: application/json
 
 ###
 GET http://localhost:3002/api/finished-goods-stock/warehouse/6a702b159599f1f0eb1f4836
@@ -900,7 +900,7 @@ Content-Type: application/json
 
 
 ###
-GET http://localhost:3002/api/getbyid-raw-material/6a76da9249609e0270276894
+GET http://localhost:3002/api/getbyid-raw-material/6ad08ccbf0284e7d6effe912
 Content-Type: application/json
  
 
@@ -963,4 +963,20 @@ Content-Type: application/json
 
  
 
+###
+GET http://localhost:3002/api/get-dashboard
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhZGM3N2E5ZmQ3NmE1ZTZiZTM1NmMxNyIsInJvbGUiOiJXYXJlaG91c2VNYW5hZ2VyIiwid2FyZWhvdXNlSWQiOiI2YWRhM2I4NmUxYWM3MDU1MjNlMjBiY2YiLCJhcmVhSWQiOiI2YWRjNzc0YWZkNzZhNWU2YmUzNTZiZmUiLCJpYXQiOjE3OTI5ODk1MTYsImV4cCI6MTc5MzU5NDMxNn0.go6WzvwOaWJVYTxgGDNZk8cvdEAaC49dT9ZdegB-MSs
+
+
+
  
+
+ 
+
+
+###
+GET http://localhost:3002/api/get-all-production-instructions
+Content-Type: application/json
+
+

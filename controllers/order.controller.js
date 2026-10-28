@@ -6,6 +6,7 @@ const BeatPlan = require("../models/beat-plan");
 const User = require("../models/user");
 const Delivery = require("../models/delivery");
 const Visit = require("../models/visit");
+const mongoose = require("mongoose");
 
 
 // =====================================
@@ -1015,6 +1016,116 @@ exports.getOrders = async (req, res) => {
 
     }
 
+};
+
+exports.getPendingOrders = async (req, res) => {
+    try {
+
+        // ==========================================
+        // ROLE VALIDATION
+        // ==========================================
+
+        const role = req.user?.role;
+
+        if (!["Admin", "WarehouseManager"].includes(role)) {
+            return res.status(403).json({
+                success: false,
+                message: "Access denied. Admin or Warehouse Manager only."
+            });
+        }
+
+        // ==========================================
+        // COMMON DELIVERY FILTER
+        // ==========================================
+
+        const filter = {
+            sourceType: "WAREHOUSE",
+            deliveryStatus: {
+                $in: ["Pending", "Assigned"]
+            },
+            isDeleted: false
+        };
+
+        // ==========================================
+        // WAREHOUSE MANAGER FILTER
+        // ==========================================
+
+        if (role === "WarehouseManager") {
+
+            const warehouseId = req.user?.warehouseId;
+
+            if (!warehouseId) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Warehouse is not assigned to this user."
+                });
+            }
+
+            if (!mongoose.Types.ObjectId.isValid(warehouseId)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid warehouse ID."
+                });
+            }
+
+            filter.sourceWarehouse = warehouseId;
+        }
+
+        // ==========================================
+        // FETCH PENDING DELIVERIES
+        // ==========================================
+
+        const deliveries = await Delivery.find(filter)
+            .populate({
+                path: "order",
+                match: {
+                    isDeleted: false
+                }
+            })
+            .populate({
+                path: "party",
+                select:
+                    "_id firstName lastName fullName mobile email role profileImage shopName gstNumber panNumber addressLine1 addressLine2 city state pincode"
+            })
+            .populate({
+                path: "deliveryBoy",
+                select:
+                    "_id firstName lastName fullName employeeCode mobile profileImage role warehouse"
+            })
+            .populate({
+                path: "sourceWarehouse",
+                select:
+                    "_id warehouseCode warehouseName warehouseType"
+            })
+            .sort({
+                createdAt: -1
+            })
+            .lean();
+
+        // ==========================================
+        // REMOVE DELIVERIES WITH DELETED/MISSING ORDER
+        // ==========================================
+
+        const validDeliveries = deliveries.filter(
+            delivery => delivery.order
+        );
+
+        return res.status(200).json({
+            success: true,
+            count: validDeliveries.length,
+            data: validDeliveries
+        });
+
+    } catch (error) {
+
+        console.error("Get Pending Orders Error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch pending deliveries.",
+            error: error.message
+        });
+    }
 };
 exports.getOrderById = async (req, res) => {
 

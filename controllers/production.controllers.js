@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const Production = require("../models/production");
 const StockReceive = require("../models/stock-receive");
+const ProductionInstruction = require("../models/production-instruction");
 const Product = require("../models/product");
 const Warehouse = require("../models/warehouse");
 const RawMaterial = require("../models/raw-material");
@@ -12,924 +13,443 @@ const RawMaterial = require("../models/raw-material");
 // CREATE PRODUCTION
 // ======================================
 
+
 exports.createProduction = async (req, res) => {
-
     try {
-
         const {
-
             productionNo,
             productionDate,
             warehouse,
             rawMaterials,
             productionItems,
-            remarks
-
+            remarks,
+            productionInstructionId,
+            instructionId,
+            productionInstruction
         } = req.body;
 
+        const linkedInstructionId =
+            productionInstructionId ||
+            instructionId ||
+            productionInstruction;
 
-        // ======================================
         // BASIC VALIDATION
-        // ======================================
-
         if (!productionNo) {
-
             return res.status(400).json({
-
                 success: false,
-
                 message: "Production Number is required."
-
             });
-
         }
-
 
         if (!warehouse) {
-
             return res.status(400).json({
-
                 success: false,
-
                 message: "Warehouse is required."
-
             });
-
         }
 
+        if (!linkedInstructionId) {
+            return res.status(400).json({
+                success: false,
+                message: "Production Instruction ID is required."
+            });
+        }
 
         if (
-            !rawMaterials ||
             !Array.isArray(rawMaterials) ||
             rawMaterials.length === 0
         ) {
-
             return res.status(400).json({
-
                 success: false,
-
                 message: "At least one raw material is required."
-
             });
-
         }
 
-
         if (
-            !productionItems ||
             !Array.isArray(productionItems) ||
             productionItems.length === 0
         ) {
-
             return res.status(400).json({
-
                 success: false,
-
                 message: "At least one production variant is required."
-
             });
-
         }
-
-
-        // ======================================
-        // VALIDATE WAREHOUSE
-        // ======================================
-
-        const warehouseExists =
-            await Warehouse.findById(warehouse);
-
-        if (!warehouseExists) {
-
-            return res.status(404).json({
-
-                success: false,
-
-                message: "Warehouse not found."
-
-            });
-
-        }
-
-
-        // ======================================
-        // CHECK DUPLICATE PRODUCTION NO
-        // ======================================
-
-        const alreadyExists =
-            await Production.findOne({
-
-                productionNo,
-
-                isDeleted: false
-
-            });
-
-        if (alreadyExists) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message:
-                    "Production Number already exists."
-
-            });
-
-        }
-
-
-        // ======================================
-        // VALIDATE RAW MATERIAL STOCK
-        // ======================================
-
-        let totalRawWeight = 0;
-
-
-        for (const item of rawMaterials) {
-
-
-            // ==================================
-            // VALIDATE INPUT
-            // ==================================
-
-            if (!item.stockReceive) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-                        "Stock Receive is required."
-
-                });
-
-            }
-
-
-            if (!item.rawMaterial) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-                        "Raw Material is required."
-
-                });
-
-            }
-
-
-            if (!item.batchNo) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-                        "Batch Number is required."
-
-                });
-
-            }
-
-
-            if (
-                item.weightUsedKg === undefined ||
-                item.weightUsedKg <= 0
-            ) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-                        `Invalid weight for batch ${item.batchNo}.`
-
-                });
-
-            }
-
-
-            // ==================================
-            // VALIDATE RAW MATERIAL
-            // ==================================
-
-            const rawMaterialDoc =
-                await RawMaterial.findById(
-                    item.rawMaterial
-                );
-
-            if (!rawMaterialDoc) {
-
-                return res.status(404).json({
-
-                    success: false,
-
-                    message:
-                        "Raw Material not found."
-
-                });
-
-            }
-
-
-            // ==================================
-            // GET STOCK RECEIVE
-            // ==================================
-
-            const stock =
-                await StockReceive.findById(
-                    item.stockReceive
-                );
-
-            if (!stock) {
-
-                return res.status(404).json({
-
-                    success: false,
-
-                    message:
-                        "Stock Receive not found."
-
-                });
-
-            }
-
-
-            // ==================================
-            // CHECK WAREHOUSE
-            // ==================================
-
-            if (
-                stock.warehouse.toString() !==
-                warehouse.toString()
-            ) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-                        `Stock Receive ${stock.receiveNo} ` +
-                        `does not belong to selected warehouse.`
-
-                });
-
-            }
-
-
-            // ==================================
-            // FIND SELECTED BATCH
-            // ==================================
-
-            const stockItem =
-                stock.items.find(
-
-                    x =>
-
-                        x.rawMaterial.toString() ===
-                        item.rawMaterial.toString()
-
-                        &&
-
-                        x.batchNo ===
-                        item.batchNo
-
-                );
-
-
-            if (!stockItem) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-                        `Batch ${item.batchNo} not found ` +
-                        `in selected Stock Receive.`
-
-                });
-
-            }
-
-
-            // ==================================
-            // CHECK AVAILABLE STOCK
-            // ==================================
-
-            if (
-                stockItem.availableWeightKg <
-                item.weightUsedKg
-            ) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-
-                        `${rawMaterialDoc.rawMaterialName} ` +
-
-                        `Batch ${item.batchNo} has only ` +
-
-                        `${stockItem.availableWeightKg} KG available.`
-
-                });
-
-            }
-
-
-            // ==================================
-            // ADD TOTAL RAW WEIGHT
-            // ==================================
-
-            totalRawWeight +=
-                Number(item.weightUsedKg);
-
-        }
-
-
-        // ======================================
-        // ROUND TOTAL RAW WEIGHT
-        // ======================================
-
-        totalRawWeight =
-            Number(
-                totalRawWeight.toFixed(3)
-            );
-
-
-        // ======================================
-        // VALIDATE PRODUCTION VARIANTS
-        // ======================================
-
-        let totalProducedWeight = 0;
-
-        let totalRejectedWeight = 0;
-
-
-        for (const item of productionItems) {
-
-
-            // ==================================
-            // VARIANT NAME
-            // ==================================
-
-            if (!item.variantName) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-                        "Variant Name is required."
-
-                });
-
-            }
-
-
-            // ==================================
-            // SKU
-            // ==================================
-
-            if (!item.skuCode) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-
-                        `SKU Code is required for ` +
-                        `${item.variantName}.`
-
-                });
-
-            }
-
-            if (!item.batchNo) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-                        `Batch Number is required for ${item.variantName}.`
-
-                });
-
-            }
-            // ==================================
-            // PACK SIZE
-            // ==================================
-
-            if (!item.packSize) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-
-                        `Pack Size is required for ` +
-                        `${item.variantName}.`
-
-                });
-
-            }
-
-
-            // ==================================
-            // WEIGHT
-            // ==================================
-
-            if (
-                item.weightInGrams === undefined ||
-                item.weightInGrams <= 0
-            ) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-
-                        `Weight is required for ` +
-                        `${item.variantName}.`
-
-                });
-
-            }
-
-
-            // ==================================
-            // PACKS
-            // ==================================
-
-            if (
-                item.packsProduced === undefined ||
-                item.packsProduced <= 0
-            ) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-
-                        `Packs Produced is required for ` +
-                        `${item.variantName}.`
-
-                });
-
-            }
-
-
-            // ==================================
-            // REJECTED PACKS
-            // ==================================
-
-            const rejectedPacks =
-                Number(item.rejectedPacks || 0);
-
-
-            if (rejectedPacks < 0) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-
-                        `Invalid rejected packs for ` +
-                        `${item.variantName}.`
-
-                });
-
-            }
-
-
-            // ==================================
-            // CALCULATE GOOD WEIGHT
-            // ==================================
-
-            const goodWeightKg =
-
-                (
-                    Number(item.weightInGrams) *
-                    Number(item.packsProduced)
-                ) / 1000;
-
-
-            // ==================================
-            // CALCULATE REJECTED WEIGHT
-            // ==================================
-
-            const rejectedWeightKg =
-
-                (
-                    Number(item.weightInGrams) *
-                    rejectedPacks
-                ) / 1000;
-
-
-            // ==================================
-            // TOTALS
-            // ==================================
-
-            totalProducedWeight +=
-                goodWeightKg;
-
-
-            totalRejectedWeight +=
-                rejectedWeightKg;
-
-        }
-
-
-        // ======================================
-        // ROUND TOTALS
-        // ======================================
-
-        totalProducedWeight =
-            Number(
-                totalProducedWeight.toFixed(3)
-            );
-
-
-        totalRejectedWeight =
-            Number(
-                totalRejectedWeight.toFixed(3)
-            );
-
-
-        // ======================================
-        // VALIDATE TOTAL WEIGHT
-        // ======================================
-
-        const totalConsumedWeight =
-
-            Number(
-                (
-                    totalProducedWeight +
-                    totalRejectedWeight
-                ).toFixed(3)
-            );
-
 
         if (
-            totalConsumedWeight >
-            totalRawWeight
+            !mongoose.Types.ObjectId.isValid(linkedInstructionId) ||
+            !mongoose.Types.ObjectId.isValid(warehouse)
         ) {
-
             return res.status(400).json({
-
                 success: false,
-
-                message:
-
-                    `Production weight mismatch. ` +
-
-                    `Raw Material Used: ${totalRawWeight} KG, ` +
-
-                    `Production + Rejected: ` +
-                    `${totalConsumedWeight} KG.`
-
+                message: "Invalid instruction or warehouse ID."
             });
-
         }
 
+        // VALIDATE WAREHOUSE
+        const warehouseExists = await Warehouse.findById(warehouse);
 
-        // ======================================
-        // CALCULATE WASTE
-        // ======================================
+        if (!warehouseExists) {
+            return res.status(404).json({
+                success: false,
+                message: "Warehouse not found."
+            });
+        }
 
-        const wasteKg =
+        // VALIDATE PRODUCTION INSTRUCTION
+        const instruction = await ProductionInstruction.findOne({
+            _id: linkedInstructionId,
+            isDeleted: false
+        });
 
-            Number(
+        if (!instruction) {
+            return res.status(404).json({
+                success: false,
+                message: "Production Instruction not found."
+            });
+        }
+
+        if (instruction.warehouse.toString() !== warehouse.toString()) {
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Production Instruction does not belong to the selected warehouse."
+            });
+        }
+
+        if (instruction.production) {
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Production entry already exists for this instruction."
+            });
+        }
+
+        if (!["Accepted", "In Progress"].includes(instruction.status)) {
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Only Accepted or In Progress instructions can have production entries."
+            });
+        }
+
+        // CHECK DUPLICATE PRODUCTION NUMBER
+        const alreadyExists = await Production.findOne({
+            productionNo,
+            isDeleted: false
+        });
+
+        if (alreadyExists) {
+            return res.status(400).json({
+                success: false,
+                message: "Production Number already exists."
+            });
+        }
+
+        // VALIDATE RAW MATERIALS AND CALCULATE RAW WEIGHT
+        let totalRawWeight = 0;
+
+        const stockItemsToUpdate = [];
+
+        for (const item of rawMaterials) {
+            if (
+                !item.stockReceive ||
+                !item.rawMaterial ||
+                !item.batchNo ||
+                item.weightUsedKg === undefined ||
+                !Number.isFinite(Number(item.weightUsedKg)) ||
+                Number(item.weightUsedKg) <= 0
+            ) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Invalid raw material or weight for batch ${item.batchNo || ""}.`
+                });
+            }
+
+            const rawMaterialDoc = await RawMaterial.findById(
+                item.rawMaterial
+            );
+
+            if (!rawMaterialDoc) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Raw Material not found."
+                });
+            }
+
+            const stock = await StockReceive.findById(item.stockReceive);
+
+            if (!stock) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Stock Receive not found."
+                });
+            }
+
+            if (
+                !stock.warehouse ||
+                stock.warehouse.toString() !== warehouse.toString()
+            ) {
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        `Stock Receive ${stock.receiveNo} does not belong to selected warehouse.`
+                });
+            }
+
+            const stockItem = stock.items.find(
+                x =>
+                    x.rawMaterial.toString() === item.rawMaterial.toString() &&
+                    x.batchNo === item.batchNo
+            );
+
+            if (!stockItem) {
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        `Batch ${item.batchNo} not found in selected Stock Receive.`
+                });
+            }
+
+            if (
+                Number(stockItem.availableWeightKg) <
+                Number(item.weightUsedKg)
+            ) {
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        `${rawMaterialDoc.rawMaterialName} Batch ${item.batchNo} has only ${stockItem.availableWeightKg} KG available.`
+                });
+            }
+
+            totalRawWeight += Number(item.weightUsedKg);
+
+            stockItemsToUpdate.push({
+                stockReceiveId: item.stockReceive,
+                rawMaterialId: item.rawMaterial,
+                batchNo: item.batchNo,
+                weightUsedKg: Number(item.weightUsedKg)
+            });
+        }
+
+        totalRawWeight = Number(totalRawWeight.toFixed(3));
+
+        // VALIDATE PRODUCTION ITEMS
+        let totalProducedWeight = 0;
+        let totalRejectedWeight = 0;
+
+        for (const item of productionItems) {
+            const weight = Number(item.weightInGrams);
+            const packs = Number(item.packsProduced);
+            const rejectedPacks = Number(item.rejectedPacks || 0);
+
+            if (
+                !item.variantName ||
+                !item.skuCode ||
+                !item.batchNo ||
+                !item.packSize
+            ) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Variant, SKU, batch and pack size are required."
+                });
+            }
+
+            if (!Number.isFinite(weight) || weight <= 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Invalid weight for ${item.variantName}.`
+                });
+            }
+
+            if (!Number.isFinite(packs) || packs <= 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Invalid packs produced for ${item.variantName}.`
+                });
+            }
+
+            if (
+                !Number.isInteger(rejectedPacks) ||
+                rejectedPacks < 0
+            ) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Invalid rejected packs for ${item.variantName}.`
+                });
+            }
+
+            const goodWeightKg = (weight * packs) / 1000;
+            const rejectedWeightKg = (weight * rejectedPacks) / 1000;
+
+            totalProducedWeight += goodWeightKg;
+            totalRejectedWeight += rejectedWeightKg;
+        }
+
+        totalProducedWeight = Number(totalProducedWeight.toFixed(3));
+        totalRejectedWeight = Number(totalRejectedWeight.toFixed(3));
+
+        const totalConsumedWeight = Number(
+            (totalProducedWeight + totalRejectedWeight).toFixed(3)
+        );
+
+        if (totalConsumedWeight > totalRawWeight) {
+            return res.status(400).json({
+                success: false,
+                message:
+                    `Production weight mismatch. Raw Material Used: ${totalRawWeight} KG, Production + Rejected: ${totalConsumedWeight} KG.`
+            });
+        }
+
+        const wasteKg = Number(
+            (
+                totalRawWeight -
+                totalProducedWeight -
+                totalRejectedWeight
+            ).toFixed(3)
+        );
+
+        // PREPARE PRODUCTION ITEMS
+        const finalProductionItems = productionItems.map(item => {
+            const goodWeightKg =
+                (Number(item.weightInGrams) *
+                    Number(item.packsProduced)) /
+                1000;
+
+            return {
+                variantName: item.variantName.trim(),
+                skuCode: item.skuCode.trim().toUpperCase(),
+                batchNo: item.batchNo.trim(),
+                packSize: item.packSize.trim(),
+                weightInGrams: Number(item.weightInGrams),
+                packsProduced: Number(item.packsProduced),
+                rejectedPacks: Number(item.rejectedPacks || 0),
+                totalWeightUsedKg: Number(goodWeightKg.toFixed(3))
+            };
+        });
+
+        const finalRawMaterials = rawMaterials.map(item => ({
+            stockReceive: item.stockReceive,
+            rawMaterial: item.rawMaterial,
+            batchNo: item.batchNo,
+            availableWeightKg: Number(item.availableWeightKg || 0),
+            weightUsedKg: Number(item.weightUsedKg)
+        }));
+
+        // CREATE PRODUCTION
+        const production = await Production.create({
+            productionNo,
+            productionDate: productionDate || new Date(),
+            warehouse,
+            rawMaterials: finalRawMaterials,
+            rawWeightUsedKg: totalRawWeight,
+            productionItems: finalProductionItems,
+            totalProducedWeightKg: totalProducedWeight,
+            wasteKg,
+            remarks: remarks || "",
+            status: "Completed"
+        });
+
+        // DEDUCT RAW MATERIAL STOCK
+        for (const usedItem of stockItemsToUpdate) {
+            const stock = await StockReceive.findById(
+                usedItem.stockReceiveId
+            );
+
+            if (!stock) {
+                throw new Error(
+                    `Stock Receive ${usedItem.stockReceiveId} was not found while updating stock.`
+                );
+            }
+
+            const stockItem = stock.items.find(
+                x =>
+                    x.rawMaterial.toString() ===
+                    usedItem.rawMaterialId.toString() &&
+                    x.batchNo === usedItem.batchNo
+            );
+
+            if (!stockItem) {
+                throw new Error(
+                    `Batch ${usedItem.batchNo} was not found while updating stock.`
+                );
+            }
+
+            if (
+                Number(stockItem.availableWeightKg) <
+                usedItem.weightUsedKg
+            ) {
+                throw new Error(
+                    `Insufficient stock for batch ${usedItem.batchNo}.`
+                );
+            }
+
+            stockItem.availableWeightKg = Number(
                 (
-                    totalRawWeight -
-                    totalProducedWeight -
-                    totalRejectedWeight
+                    Number(stockItem.availableWeightKg) -
+                    usedItem.weightUsedKg
                 ).toFixed(3)
             );
 
+            const totalAvailableWeight = stock.items.reduce(
+                (sum, x) => sum + Number(x.availableWeightKg || 0),
+                0
+            );
 
-        // ======================================
-        // DEDUCT RAW MATERIAL STOCK
-        // ======================================
+            const totalOriginalWeight = stock.items.reduce(
+                (sum, x) => sum + Number(x.totalWeightKg || 0),
+                0
+            );
 
-        for (const item of rawMaterials) {
-
-
-            const stock =
-                await StockReceive.findById(
-                    item.stockReceive
-                );
-
-
-            const stockItem =
-                stock.items.find(
-
-                    x =>
-
-                        x.rawMaterial.toString() ===
-                        item.rawMaterial.toString()
-
-                        &&
-
-                        x.batchNo ===
-                        item.batchNo
-
-                );
-
-
-            // ==================================
-            // REDUCE AVAILABLE STOCK
-            // ==================================
-
-            stockItem.availableWeightKg =
-
-                Number(
-                    (
-                        stockItem.availableWeightKg -
-                        Number(item.weightUsedKg)
-                    ).toFixed(3)
-                );
-
-
-            // ==================================
-            // PREVENT NEGATIVE STOCK
-            // ==================================
-
-            if (
-                stockItem.availableWeightKg < 0
-            ) {
-
-                stockItem.availableWeightKg = 0;
-
+            if (totalAvailableWeight <= 0) {
+                stock.status = "Completed";
+            } else if (totalAvailableWeight < totalOriginalWeight) {
+                stock.status = "Partially Used";
+            } else {
+                stock.status = "Received";
             }
-
-
-            // ==================================
-            // UPDATE STOCK STATUS
-            // ==================================
-
-            const totalAvailableWeight =
-
-                stock.items.reduce(
-
-                    (sum, x) =>
-
-                        sum +
-                        Number(
-                            x.availableWeightKg || 0
-                        ),
-
-                    0
-
-                );
-
-
-            const totalOriginalWeight =
-
-                stock.items.reduce(
-
-                    (sum, x) =>
-
-                        sum +
-                        Number(
-                            x.totalWeightKg || 0
-                        ),
-
-                    0
-
-                );
-
-
-            if (
-                totalAvailableWeight === 0
-            ) {
-
-                stock.status =
-                    "Completed";
-
-            }
-
-            else if (
-                totalAvailableWeight <
-                totalOriginalWeight
-            ) {
-
-                stock.status =
-                    "Partially Used";
-
-            }
-
-            else {
-
-                stock.status =
-                    "Received";
-
-            }
-
-
-            // ==================================
-            // SAVE STOCK
-            // ==================================
 
             await stock.save();
-
         }
 
+        // LINK PRODUCTION TO INSTRUCTION
+        instruction.production = production._id;
+        instruction.status = "Completed";
 
-        // ======================================
-        // PREPARE PRODUCTION ITEMS
-        // ======================================
+        await instruction.save();
 
-        const finalProductionItems =
-
-            productionItems.map(item => {
-
-
-                const goodWeightKg =
-
-                    (
-                        Number(item.weightInGrams) *
-                        Number(item.packsProduced)
-                    ) / 1000;
-
-
-                return {
-
-                    variantName:
-                        item.variantName.trim(),
-
-                    skuCode:
-                        item.skuCode
-                            .trim()
-                            .toUpperCase(),
-                    batchNo:
-                        item.batchNo.trim(),
-
-                    packSize:
-                        item.packSize.trim(),
-
-                    weightInGrams:
-                        Number(item.weightInGrams),
-
-                    packsProduced:
-                        Number(item.packsProduced),
-
-                    rejectedPacks:
-                        Number(item.rejectedPacks || 0),
-
-                    totalWeightUsedKg:
-                        Number(
-                            goodWeightKg.toFixed(3)
-                        )
-
-                };
-
-            });
-
-
-        // ======================================
-        // PREPARE RAW MATERIAL DATA
-        // ======================================
-
-        const finalRawMaterials =
-
-            rawMaterials.map(item => {
-
-                return {
-
-                    stockReceive:
-                        item.stockReceive,
-
-                    rawMaterial:
-                        item.rawMaterial,
-
-                    batchNo:
-                        item.batchNo,
-
-                    availableWeightKg:
-                        Number(
-                            item.availableWeightKg || 0
-                        ),
-
-                    weightUsedKg:
-                        Number(item.weightUsedKg)
-
-                };
-
-            });
-
-
-        // ======================================
-        // CREATE PRODUCTION
-        // ======================================
-
-        const production =
-
-            await Production.create({
-
-                productionNo,
-
-                productionDate:
-                    productionDate || new Date(),
-
-                warehouse,
-
-                rawMaterials:
-                    finalRawMaterials,
-
-                rawWeightUsedKg:
-                    totalRawWeight,
-
-                productionItems:
-                    finalProductionItems,
-
-                totalProducedWeightKg:
-                    totalProducedWeight,
-
-                wasteKg:
-                    wasteKg,
-
-                remarks:
-                    remarks || "",
-
-                status:
-                    "Completed"
-
-            });
-
-
-        // ======================================
         // POPULATE RESPONSE
-        // ======================================
-
-        const response =
-
-            await Production.findById(
-                production._id
+        const response = await Production.findById(production._id)
+            .populate("warehouse", "warehouseName warehouseCode")
+            .populate(
+                "rawMaterials.stockReceive",
+                "receiveNo supplier warehouse"
             )
-
-                .populate(
-                    "warehouse",
-                    "warehouseName warehouseCode"
-                )
-
-                .populate(
-                    "rawMaterials.stockReceive",
-                    "receiveNo supplier warehouse"
-                )
-
-                .populate(
-                    "rawMaterials.rawMaterial",
-                    "rawMaterialName rawMaterialCode unit"
-                );
-
-
-        // ======================================
-        // SUCCESS RESPONSE
-        // ======================================
+            .populate(
+                "rawMaterials.rawMaterial",
+                "rawMaterialName rawMaterialCode unit"
+            );
 
         return res.status(201).json({
-
             success: true,
-
             message:
-                "Production Created Successfully.",
-
-            data: response
-
+                "Production created successfully and instruction marked Completed.",
+            data: response,
+            instruction: {
+                _id: instruction._id,
+                status: instruction.status,
+                production: instruction.production
+            }
         });
-
-    }
-
-    catch (error) {
-
-        console.log(
-            "Create Production Error:",
-            error
-        );
+    } catch (error) {
+        console.error("Create Production Error:", error);
 
         return res.status(500).json({
-
             success: false,
-
-            message:
-                error.message
-
+            message: error.message || "Failed to create production."
         });
-
     }
-
 };
+
 
 
 // ======================================
@@ -2054,4 +1574,117 @@ exports.getProductionsByWarehouse = async (req, res) => {
 
     }
 
+};
+
+
+
+// =====================================================
+// GET COMPLETED PRODUCTIONS FOR LOGGED-IN WAREHOUSE
+// =====================================================
+
+exports.getWarehouseCompletedProductions = async (req, res) => {
+    try {
+        // Role validation
+        if (req.user?.role !== "WarehouseManager") {
+            return res.status(403).json({
+                success: false,
+                message: "Access denied. Warehouse Manager only."
+            });
+        }
+
+        // Get warehouse ID from authenticated JWT
+        const warehouseId = req.user?.warehouseId;
+
+        if (!warehouseId) {
+            return res.status(400).json({
+                success: false,
+                message: "Warehouse is not assigned to this user."
+            });
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(warehouseId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid warehouse ID."
+            });
+        }
+
+        const warehouseObjectId =
+            new mongoose.Types.ObjectId(warehouseId);
+
+        // Fetch completed productions for this warehouse
+        const productions = await Production.find({
+            warehouse: warehouseObjectId,
+            status: "Completed",
+            isDeleted: false
+        })
+            .populate("warehouse", "warehouseCode warehouseName warehouseType")
+            .populate("rawMaterials.stockReceive")
+            .populate("rawMaterials.rawMaterial")
+            .sort({ productionDate: -1, createdAt: -1 })
+            .lean();
+
+        // Calculate summary
+        const summary = productions.reduce(
+            (acc, production) => {
+                acc.totalProductions += 1;
+
+                acc.totalRawWeightUsedKg +=
+                    Number(production.rawWeightUsedKg || 0);
+
+                acc.totalProducedWeightKg +=
+                    Number(production.totalProducedWeightKg || 0);
+
+                acc.totalWasteKg +=
+                    Number(production.wasteKg || 0);
+
+                for (const item of production.productionItems || []) {
+                    acc.totalPacksProduced +=
+                        Number(item.packsProduced || 0);
+
+                    acc.totalRejectedPacks +=
+                        Number(item.rejectedPacks || 0);
+                }
+
+                return acc;
+            },
+            {
+                totalProductions: 0,
+                totalRawWeightUsedKg: 0,
+                totalProducedWeightKg: 0,
+                totalWasteKg: 0,
+                totalPacksProduced: 0,
+                totalRejectedPacks: 0
+            }
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: "Warehouse completed productions fetched successfully.",
+
+            warehouse: productions.length
+                ? productions[0].warehouse
+                : {
+                    _id: warehouseObjectId
+                },
+
+            summary,
+
+            total: productions.length,
+
+            productions
+        });
+
+    } catch (error) {
+        console.error(
+            "Get warehouse completed productions error:",
+            error
+        );
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch warehouse completed productions.",
+            error: error.message
+        });
+    }
 };

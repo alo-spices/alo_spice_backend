@@ -15,7 +15,7 @@ const { createParty, getParties, getShopsByRoute, getPartyById, updateParty, del
 const { createRoute, getRoutes, getRouteById, updateRoute, deleteRoute, getRouteSummary } = require("../controllers/route.controller");
 const { getAttendances, getAttendanceById, createAttendance, checkIn, checkOut, getTodayAttendance, getMonthlyAttendance, getAttendanceSummary } = require("../controllers/attendance.controller");
 const { getVisits, getVisitById, startVisit, completeVisit, pendingVisit, cancelVisit, getTodayVisits, getVisitSummary, getEmployeeVisits, checkActiveVisit, checkActiveEmployeeVisit } = require("../controllers/visit.controller");
-const { createOrder, getOrders, getOrderById, updateOrder, cancelOrder, approveOrder, rejectOrder, processOrder, markDelivered, getPartyOrders, getEmployeeOrders } = require("../controllers/order.controller");
+const { createOrder, getOrders, getPendingOrders, getOrderById, updateOrder, cancelOrder, approveOrder, rejectOrder, processOrder, markDelivered, getPartyOrders, getEmployeeOrders } = require("../controllers/order.controller");
 const { createOrderItem, updateOrderItem, deleteOrderItem } = require("../controllers/orderitem.controller");
 const { createCollection, getCollections, getCollectionById, updateCollection, deleteCollection, verifyCollection, rejectCollection, getOutstanding, getPartyOutstanding, getEmployeeOutstanding, getEmployeeCollections } = require("../controllers/collection.controller");
 const { createDelivery, getDeliveries, getDeliveryById, updateDelivery, assignDeliveryBoy, dispatchDelivery, markDelivereds, markFailed, getDeliveryBoyCompletedDeliveries, getDeliveryBoyPendingDeliveries, getDeliveryBoyCollections, getDeliveryBoyPendingCollections } = require("../controllers/delivery.controller");
@@ -26,11 +26,11 @@ const { applyLeave, getLeaves, updateLeave, approveLeave, rejectLeave } = requir
 const { createTarget, getTargets, updateTarget, deleteTarget, assignTarget, getAchievement, getTargetSummary } = require("../controllers/employeetarget.controller");
 const { getWarehouseStock, updateStockReceive, deleteStockReceive, getAvailableStockReceives, createStockReceive, getAvailableStock, getAvailableStockByProduct, getAllStockReceives, getStockReceiveById } = require("../controllers/stock-receive.controller");
 const { createSupplier, getAllSuppliers, getSupplierById, updateSupplier, deleteSupplier } = require("../controllers/supplier.controller");
-const { getNextProductionNo, deleteProduction, createProduction, getAllProductions, getProductionById, updateProduction, getProductionsByWarehouse } = require("../controllers/production.controllers");
+const { getNextProductionNo, deleteProduction, createProduction, getAllProductions, getProductionById, updateProduction, getProductionsByWarehouse, getWarehouseCompletedProductions } = require("../controllers/production.controllers");
 const { getRawMaterialsByWarehouse, createWarehouse, getAllWarehouses, getWarehouseById, updateWarehouse, deleteWarehouse, getAllFinishedGoodsStock, getFinishedGoodsStockByWarehouse } = require("../controllers/warehouse.controller");
 const { createRawMaterial, getAllRawMaterials, getRawMaterialById, updateRawMaterial, deleteRawMaterial, getRawMaterialDropdown, getRawMaterialStockByWarehouse } = require("../controllers/rawmaterial.controller");
 const { createMainCategory, getAllMainCategories, getMainCategoryById, updateMainCategory, deleteMainCategory } = require("../controllers/maincategory.controller");
-const { createProductionInstruction, getAllProductionInstructions, getProductionInstructionById, updateProductionInstruction, acceptProductionInstruction, cancelProductionInstruction, deleteProductionInstruction, getNextInstructionNo, getProductionInstructionsByWarehouse } = require("../controllers/production-instruction.controller");
+const { createProductionInstruction, getAllProductionInstructions, getProductionInstructionById, updateProductionInstruction, acceptProductionInstruction, updateProductionInstructionStatus, cancelProductionInstruction, deleteProductionInstruction, getNextInstructionNo, getProductionInstructionsByWarehouse } = require("../controllers/production-instruction.controller");
 
 const { getNextStockTransferNo, createStockTransfer, getAllStockTransfers, getStockTransferById, getStockTransfersByWarehouse, updateStockTransferStatus, deleteStockTransfer, getDistributorIncomingTransfers,
     getDistributorTransferById, receiveStockTransfer, getMyDistributorStock, getDistributorStockHistory, getMyEmployees, getMyEmployeeById } = require("../controllers/stock-transfer.controller");
@@ -169,6 +169,7 @@ router.get("/active-employee-visit/:employeeId", checkActiveEmployeeVisit);
 // order
 router.post("/create-order", createOrder);
 router.get("/get-orders", authMiddleware, getOrders);
+router.get("/get-pending-orders", authMiddleware, getPendingOrders);
 router.get("/getbyid-orders/:id", authMiddleware, getOrderById);
 router.put("/update-orders/:id", updateOrder);
 router.put("/cancel-orders/:id", cancelOrder);
@@ -179,6 +180,7 @@ router.put("/process-order/:id", processOrder);
 router.put("/mark-delivered/:id", markDelivered);
 router.get("/party-orders/:partyId", getPartyOrders);
 router.get("/employee-orders/:employeeId", getEmployeeOrders);
+
 
 // OrderItem    
 router.post("/create-order-item", createOrderItem);
@@ -274,6 +276,7 @@ router.delete("/delete-supplier/:id", deleteSupplier);
 
 
 router.post("/create-production", createProduction);
+router.get("/warehouse/completed-productions", authMiddleware, getWarehouseCompletedProductions);
 router.get("/get-all-productions", getAllProductions);
 router.get("/getProductionById/:id", getProductionById);
 router.delete("/delete-production/:id", deleteProduction);
@@ -283,11 +286,13 @@ router.get("/next-number", getNextProductionNo);
 router.get("/warehouse/:warehouseId", getProductionsByWarehouse);
 
 
+
 router.post("/create-production-instruction", createProductionInstruction);
 router.get("/get-all-production-instructions", getAllProductionInstructions);
 router.get("/getProductionInstructionById/:id", getProductionInstructionById);
 router.put("/updateProductionInstruction/:id", updateProductionInstruction);
 router.put("/acceptProductionInstruction/:id", acceptProductionInstruction);
+router.put("/updateProductionInstructionStatus/:instructionId", updateProductionInstructionStatus);
 router.put("/cancelProductionInstruction/:id", cancelProductionInstruction);
 router.delete("/delete-production-instruction/:id", deleteProductionInstruction);
 router.get("/production-instruction/next-number", getNextInstructionNo);

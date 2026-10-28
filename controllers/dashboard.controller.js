@@ -12,9 +12,6 @@ const Delivery = require("../models/delivery");
 const Collection = require("../models/collection");
 
 
-// =====================================================
-// GET ROLE BASED DASHBOARD
-// =====================================================
 
 // =====================================================
 // GET ROLE BASED DASHBOARD
@@ -321,188 +318,104 @@ exports.getDashboard = async (req, res) => {
         // WAREHOUSE MANAGER
         // =================================================
 
+
         if (isWarehouseManager) {
 
+            // Get warehouse ID from decoded JWT token
             warehouseId =
+                req.user?.warehouseId ||
+                req.user?.warehouse?._id ||
                 req.user?.warehouse;
 
-
-            // ---------------------------------------------
-            // VALIDATE WAREHOUSE
-            // ---------------------------------------------
-
+            // Validate warehouse assignment
             if (!warehouseId) {
-
                 return res.status(400).json({
-
                     success: false,
-
-                    message:
-                        "Warehouse is not assigned to this user"
-
+                    message: "Warehouse is not assigned to this user"
                 });
-
             }
 
+            // Convert to ObjectId
+            if (!mongoose.Types.ObjectId.isValid(warehouseId)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid warehouse ID"
+                });
+            }
 
-            warehouseId =
-                new mongoose.Types.ObjectId(
-                    warehouseId
-                );
+            warehouseId = new mongoose.Types.ObjectId(warehouseId);
 
-
-            // ---------------------------------------------
             // WAREHOUSE EMPLOYEES
-            // ---------------------------------------------
-
             employeeFilter = {
-
                 ...employeeFilter,
-
-                warehouse:
-                    warehouseId,
-
-                assignmentType:
-                    "WAREHOUSE",
-
+                warehouse: warehouseId,
+                assignmentType: "WAREHOUSE",
                 role: {
                     $in: employeeRoles
                 }
-
             };
 
-
-            // ---------------------------------------------
             // PRODUCTION
-            // ---------------------------------------------
-
             productionFilter = {
-
                 ...productionFilter,
-
-                warehouse:
-                    warehouseId
-
+                warehouse: warehouseId
             };
 
-
-            // ---------------------------------------------
             // PRODUCTION INSTRUCTIONS
-            // ---------------------------------------------
-
             instructionFilter = {
-
                 ...instructionFilter,
-
-                warehouse:
-                    warehouseId
-
+                warehouse: warehouseId
             };
 
-
-            // ---------------------------------------------
             // STOCK RECEIVE
-            // ---------------------------------------------
-
             stockReceiveFilter = {
-
-                warehouse:
-                    warehouseId
-
+                warehouse: warehouseId
             };
 
-
-            // ---------------------------------------------
             // STOCK TRANSFER
-            // ---------------------------------------------
-
             stockTransferFilter = {
-
                 ...stockTransferFilter,
-
-                sourceWarehouse:
-                    warehouseId
-
+                sourceWarehouse: warehouseId
             };
 
-
-            // ---------------------------------------------
             // DELIVERIES
-            // ---------------------------------------------
-
             deliveryFilter = {
-
                 ...deliveryFilter,
-
-                sourceType:
-                    "WAREHOUSE",
-
-                sourceWarehouse:
-                    warehouseId
-
+                sourceType: "WAREHOUSE",
+                sourceWarehouse: warehouseId
             };
 
-
-            // ---------------------------------------------
             // GET WAREHOUSE EMPLOYEES
-            // ---------------------------------------------
+            const warehouseEmployees = await User.find({
+                warehouse: warehouseId,
+                assignmentType: "WAREHOUSE",
+                role: {
+                    $in: employeeRoles
+                },
+                isDeleted: false
+            })
+                .select("_id")
+                .lean();
 
-            const warehouseEmployees =
-                await User.find({
+            const employeeIds = warehouseEmployees.map(
+                employee => employee._id
+            );
 
-                    warehouse:
-                        warehouseId,
-
-                    assignmentType:
-                        "WAREHOUSE",
-
-                    role: {
-                        $in: employeeRoles
-                    },
-
-                    isDeleted:
-                        false
-
-                })
-                    .select("_id")
-                    .lean();
-
-
-            const employeeIds =
-                warehouseEmployees.map(
-                    x => x._id
-                );
-
-
-            // ---------------------------------------------
             // WAREHOUSE ORDERS
-            // ---------------------------------------------
-
             orderFilter = {
-
                 ...orderFilter,
-
                 employee: {
                     $in: employeeIds
                 }
-
             };
 
-
-            // ---------------------------------------------
             // WAREHOUSE COLLECTIONS
-            // ---------------------------------------------
-
             collectionFilter = {
-
                 ...collectionFilter,
-
                 employee: {
                     $in: employeeIds
                 }
-
             };
-
         }
 
 

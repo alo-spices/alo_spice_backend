@@ -733,10 +733,6 @@ exports.getProductionInstructionById = async (req, res) => {
 
 
 
-// ======================================
-// UPDATE PRODUCTION INSTRUCTION
-// ADMIN - ONLY PENDING
-// ======================================
 
 // ======================================
 // UPDATE PRODUCTION INSTRUCTION
@@ -1333,9 +1329,7 @@ exports.updateProductionInstruction = async (req, res) => {
 
 };
 
-// ======================================
-// ACCEPT PRODUCTION INSTRUCTION
-// ======================================
+
 // ======================================
 // ACCEPT PRODUCTION INSTRUCTION
 // ======================================
@@ -1993,4 +1987,145 @@ exports.getProductionInstructionsByWarehouse = async (req, res) => {
 
     }
 
+};
+
+
+// =====================================================
+// UPDATE PRODUCTION INSTRUCTION STATUS
+// =====================================================
+
+exports.updateProductionInstructionStatus = async (req, res) => {
+    try {
+        const { instructionId } = req.params;
+        const { status } = req.body;
+
+        // ==========================================
+        // Validate Instruction ID
+        // ==========================================
+
+        if (!mongoose.Types.ObjectId.isValid(instructionId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid production instruction ID"
+            });
+        }
+
+        // ==========================================
+        // Allowed Statuses
+        // ==========================================
+
+        const allowedStatuses = [
+            "Pending",
+            "Accepted",
+            "In Progress",
+            "Completed",
+            "Rejected",
+            "Cancelled"
+        ];
+
+        if (!status || !allowedStatuses.includes(status)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid production instruction status",
+                allowedStatuses
+            });
+        }
+
+        // ==========================================
+        // Find Instruction
+        // ==========================================
+
+        const instruction = await ProductionInstruction.findOne({
+            _id: instructionId,
+            isDeleted: false
+        });
+
+        if (!instruction) {
+            return res.status(404).json({
+                success: false,
+                message: "Production instruction not found"
+            });
+        }
+
+        // ==========================================
+        // Prevent Changes After Completion
+        // ==========================================
+
+        if (instruction.status === "Completed") {
+            return res.status(400).json({
+                success: false,
+                message: "Completed production instruction cannot be modified"
+            });
+        }
+
+        // ==========================================
+        // Validate Status Transitions
+        // ==========================================
+
+        const allowedTransitions = {
+            "Pending": ["Accepted", "Rejected", "Cancelled"],
+            "Accepted": ["In Progress", "Rejected", "Cancelled"],
+            "In Progress": ["Completed", "Cancelled"],
+            "Completed": [],
+            "Rejected": [],
+            "Cancelled": []
+        };
+
+        if (!allowedTransitions[instruction.status]?.includes(status)) {
+            return res.status(400).json({
+                success: false,
+                message: `Cannot change status from ${instruction.status} to ${status}`
+            });
+        }
+
+        // ==========================================
+        // Completed Requires Production Reference
+        // ==========================================
+
+        if (status === "Completed" && !instruction.production) {
+            return res.status(400).json({
+                success: false,
+                message: "Production entry must be created before completing this instruction"
+            });
+        }
+
+        // ==========================================
+        // Update Status
+        // ==========================================
+
+        instruction.status = status;
+
+        if (status === "Accepted") {
+            instruction.acceptedAt = new Date();
+        }
+
+        await instruction.save();
+
+        // ==========================================
+        // Populate Response
+        // ==========================================
+
+        const updatedInstruction =
+            await ProductionInstruction.findById(instruction._id)
+                .populate("warehouse")
+                .populate("production");
+
+        return res.status(200).json({
+            success: true,
+            message: `Production instruction status updated to ${status}`,
+            data: updatedInstruction
+        });
+
+    } catch (error) {
+        console.error(
+            "Update Production Instruction Status Error:",
+            error
+        );
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to update production instruction status",
+            error: error.message
+        });
+    }
 };

@@ -37,12 +37,12 @@ exports.createParty = async (req, res) => {
             });
         }
 
-        if (!mobile) {
-            return res.status(400).json({
-                success: false,
-                message: "Mobile Number is required"
-            });
-        }
+        // if (!mobile) {
+        //     return res.status(400).json({
+        //         success: false,
+        //         message: "Mobile Number is required"
+        //     });
+        // }
 
         if (!area) {
             return res.status(400).json({

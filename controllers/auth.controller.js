@@ -254,7 +254,7 @@ exports.registerUser = async (req, res) => {
             // ======================================
 
             role,
-
+            assignmentType,
             // ======================================
             // ASSIGNMENT
             // ======================================
@@ -601,6 +601,9 @@ exports.registerUser = async (req, res) => {
                 // ==================================
 
                 role,
+                assignmentType:
+                    assignmentType || "WAREHOUSE",
+
 
 
                 // ==================================

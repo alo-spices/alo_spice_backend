@@ -1,5 +1,6 @@
 
 const Order = require("../models/order");
+const OrderItem = require("../models/order-items");
 const Attendance = require("../models/attendence");
 const Party = require("../models/party");
 const BeatPlan = require("../models/beat-plan");
@@ -1127,6 +1128,7 @@ exports.getPendingOrders = async (req, res) => {
         });
     }
 };
+
 exports.getOrderById = async (req, res) => {
 
     try {
@@ -1143,7 +1145,6 @@ exports.getOrderById = async (req, res) => {
 
         })
 
-
             // ==========================================
             // EMPLOYEE POPULATE
             // ==========================================
@@ -1157,65 +1158,37 @@ exports.getOrderById = async (req, res) => {
 
                 populate: [
 
-                    // ==========================================
-                    // DISTRIBUTOR DETAILS
-                    // ==========================================
-
                     {
-
                         path: "distributor",
 
                         select:
                             "_id firstName lastName fullName mobile email profileImage role distributorName shopName gstNumber panNumber addressLine1 addressLine2 city state pincode"
-
                     },
 
-
-                    // ==========================================
-                    // WAREHOUSE DETAILS
-                    // ==========================================
-
                     {
-
                         path: "warehouse",
 
                         select:
                             "_id warehouseName code address city state pincode"
-
                     },
 
-
-                    // ==========================================
-                    // AREA DETAILS
-                    // ==========================================
-
                     {
-
                         path: "area",
 
                         select:
                             "_id name"
-
                     },
 
-
-                    // ==========================================
-                    // ROUTE DETAILS
-                    // ==========================================
-
                     {
-
                         path: "route",
 
                         select:
                             "_id name"
-
                     }
 
                 ]
 
             })
-
 
             // ==========================================
             // PARTY POPULATE
@@ -1249,6 +1222,108 @@ exports.getOrderById = async (req, res) => {
 
 
         // ==========================================
+        // GET ORDER ITEMS
+        // ==========================================
+
+        const items = await OrderItem.find({
+
+            order: order._id
+
+        })
+
+            .populate({
+
+                path: "product",
+
+                select:
+                    "_id productName productCode shortDescription description brand category hsnCode gstPercentage productType variants",
+
+                populate: [
+
+                    {
+                        path: "brand"
+                    },
+
+                    {
+                        path: "category"
+                    }
+
+                ]
+
+            })
+
+            .sort({
+
+                createdAt: 1
+
+            });
+
+
+        // ==========================================
+        // MATCH PRODUCT VARIANT DETAILS
+        // ==========================================
+
+        const itemsWithVariant = items.map((item) => {
+
+            const itemData = item.toObject();
+
+            let variant = null;
+
+            if (
+                itemData.product &&
+                itemData.product.variants &&
+                itemData.variantId
+            ) {
+
+                variant = itemData.product.variants.find(
+
+                    (v) =>
+
+                        v._id.toString() ===
+                        itemData.variantId.toString()
+
+                ) || null;
+
+            }
+
+
+            return {
+
+                ...itemData,
+
+                variant: variant
+
+            };
+
+        });
+
+
+        // ==========================================
+        // ATTACH ITEMS TO ORDER
+        // ==========================================
+
+        const orderData = {
+
+            ...order.toObject(),
+
+            items: itemsWithVariant,
+
+            totalItems: itemsWithVariant.length,
+
+            totalQuantity: itemsWithVariant.reduce(
+
+                (total, item) =>
+
+                    total + (item.quantity || 0),
+
+                0
+
+            )
+
+        };
+
+
+        // ==========================================
         // SUCCESS
         // ==========================================
 
@@ -1256,12 +1331,11 @@ exports.getOrderById = async (req, res) => {
 
             success: true,
 
-            data: order
+            data: orderData
 
         });
 
     }
-
 
     catch (error) {
 
@@ -1285,6 +1359,7 @@ exports.getOrderById = async (req, res) => {
     }
 
 };
+
 exports.updateOrder = async (req, res) => {
 
     try {

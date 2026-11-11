@@ -26,7 +26,7 @@ const { applyLeave, getLeaves, updateLeave, approveLeave, rejectLeave } = requir
 const { createTarget, getTargets, updateTarget, deleteTarget, assignTarget, getAchievement, getTargetSummary } = require("../controllers/employeetarget.controller");
 const { getWarehouseStock, updateStockReceive, deleteStockReceive, getAvailableStockReceives, createStockReceive, getAvailableStock, getAvailableStockByProduct, getAllStockReceives, getStockReceiveById } = require("../controllers/stock-receive.controller");
 const { createSupplier, getAllSuppliers, getSupplierById, updateSupplier, deleteSupplier } = require("../controllers/supplier.controller");
-const { getNextProductionNo, deleteProduction, createProduction, getAllProductions, getProductionById, updateProduction, getProductionsByWarehouse, getWarehouseCompletedProductions } = require("../controllers/production.controllers");
+const { getNextProductionNo, deleteProduction, createProduction, getAllProductions, getProductionById, updateProduction, getProductionsByWarehouse, getDistributorsByWarehouse, getWarehouseCompletedProductions } = require("../controllers/production.controllers");
 const { getRawMaterialsByWarehouse, createWarehouse, getAllWarehouses, getWarehouseById, updateWarehouse, deleteWarehouse, getAllFinishedGoodsStock, getFinishedGoodsStockByWarehouse } = require("../controllers/warehouse.controller");
 const { createRawMaterial, getAllRawMaterials, getRawMaterialById, updateRawMaterial, deleteRawMaterial, getRawMaterialDropdown, getRawMaterialStockByWarehouse } = require("../controllers/rawmaterial.controller");
 const { createMainCategory, getAllMainCategories, getMainCategoryById, updateMainCategory, deleteMainCategory } = require("../controllers/maincategory.controller");
@@ -283,8 +283,9 @@ router.delete("/delete-production/:id", deleteProduction);
 router.put("/updateProduction/:id", updateProduction);
 router.delete("/deleteprocuction/:id", deleteProduction);
 router.get("/next-number", getNextProductionNo);
-router.get("/warehouse/:warehouseId", getProductionsByWarehouse);
 
+router.get("/warehouse/distributors", authMiddleware, getDistributorsByWarehouse);
+router.get("/warehouse/:warehouseId", getProductionsByWarehouse);
 
 
 router.post("/create-production-instruction", createProductionInstruction);

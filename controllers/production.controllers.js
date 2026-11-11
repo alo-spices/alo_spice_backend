@@ -6,6 +6,7 @@ const ProductionInstruction = require("../models/production-instruction");
 const Product = require("../models/product");
 const Warehouse = require("../models/warehouse");
 const RawMaterial = require("../models/raw-material");
+const User = require("../models/user");
 
 
 
@@ -1569,6 +1570,125 @@ exports.getProductionsByWarehouse = async (req, res) => {
             success: false,
 
             message: error.message
+
+        });
+
+    }
+
+};
+
+exports.getDistributorsByWarehouse = async (req, res) => {
+
+    try {
+
+        // ==========================================
+        // LOGIN USER DETAILS
+        // ==========================================
+
+        const userId = req.user?.id;
+
+        const role = req.user?.role;
+
+        // ==========================================
+        // VALIDATE LOGIN ROLE
+        // ==========================================
+
+        if (role !== "WarehouseManager") {
+
+            return res.status(403).json({
+                success: false,
+                message: "Only Warehouse Manager can access this API"
+            });
+
+        }
+
+        // ==========================================
+        // GET ASSIGNED WAREHOUSE ID FROM JWT
+        // ==========================================
+
+        const warehouseId =
+            req.user?.warehouseId ||
+            req.user?.warehouse?._id ||
+            req.user?.warehouse;
+
+        if (!warehouseId) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Warehouse is not assigned to this user"
+            });
+
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(warehouseId)) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Invalid warehouse ID"
+            });
+
+        }
+
+        const currentWarehouseId =
+            new mongoose.Types.ObjectId(warehouseId);
+
+        // ==========================================
+        // GET WAREHOUSE DISTRIBUTORS
+        // ==========================================
+
+        const distributors = await User.find({
+
+            role: "Distributor",
+
+            assignmentType: "WAREHOUSE",
+
+            warehouse: currentWarehouseId,
+
+            isDeleted: false
+
+        })
+            .select(
+                "-password -lastLoginIP"
+            )
+            .populate(
+                "warehouse",
+                "warehouseCode warehouseName"
+            )
+            .sort({
+                createdAt: -1
+            })
+            .lean();
+
+        // ==========================================
+        // RESPONSE
+        // ==========================================
+
+        return res.status(200).json({
+
+            success: true,
+
+            count: distributors.length,
+
+            warehouseId: currentWarehouseId,
+
+            data: distributors
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Get Distributors By Warehouse Error:",
+            error
+        );
+
+        return res.status(500).json({
+
+            success: false,
+
+            message: "Failed to get warehouse distributors",
+
+            error: error.message
 
         });
 

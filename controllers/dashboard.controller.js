@@ -45,7 +45,7 @@ exports.getDashboard = async (req, res) => {
 
         }
 
-
+        const now = new Date();
         // =================================================
         // OBJECT ID
         // =================================================
@@ -475,7 +475,8 @@ exports.getDashboard = async (req, res) => {
                     "WarehouseManager",
 
                 isDeleted:
-                    false
+                    false,
+                isApproved: true
 
             }),
 
@@ -1320,118 +1321,115 @@ exports.getDashboard = async (req, res) => {
 
 
         // =================================================
-        // PAYMENT / COLLECTION TOTALS
+        // CURRENT MONTH COLLECTIONS
         // =================================================
 
+        const startOfMonth = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            1
+        );
+
+        const startOfNextMonth = new Date(
+            now.getFullYear(),
+            now.getMonth() + 1,
+            1
+        );
+
+        const currentMonthCollections = collections.filter(collection => {
+
+            const date = new Date(collection.collectionDate);
+
+            return (
+                date >= startOfMonth &&
+                date < startOfNextMonth
+            );
+
+        });
         const collectionTotals = {
 
+            // CURRENT MONTH TOTAL COLLECTIONS COUNT
             totalCollections:
-                collections.length,
+                currentMonthCollections.length,
 
 
+            // CURRENT MONTH TOTAL COLLECTED AMOUNT
             totalCollected:
 
-                collections.reduce(
+                currentMonthCollections.reduce(
 
                     (sum, x) =>
 
                         sum +
-                        Number(
-                            x.collectedAmount ||
-                            0
-                        ),
+                        Number(x.collectedAmount || 0),
 
                     0
 
                 ),
 
 
+            // CURRENT MONTH CASH
             cash:
 
-                collections
-                    .filter(
-                        x =>
-                            x.paymentMode ===
-                            "Cash"
-                    )
+                currentMonthCollections
+                    .filter(x => x.paymentMode === "Cash")
                     .reduce(
 
                         (sum, x) =>
 
                             sum +
-                            Number(
-                                x.collectedAmount ||
-                                0
-                            ),
+                            Number(x.collectedAmount || 0),
 
                         0
 
                     ),
 
 
+            // CURRENT MONTH UPI
             upi:
 
-                collections
-                    .filter(
-                        x =>
-                            x.paymentMode ===
-                            "UPI"
-                    )
+                currentMonthCollections
+                    .filter(x => x.paymentMode === "UPI")
                     .reduce(
 
                         (sum, x) =>
 
                             sum +
-                            Number(
-                                x.collectedAmount ||
-                                0
-                            ),
+                            Number(x.collectedAmount || 0),
 
                         0
 
                     ),
 
 
+            // CURRENT MONTH BANK TRANSFER
             bankTransfer:
 
-                collections
-                    .filter(
-                        x =>
-                            x.paymentMode ===
-                            "Bank Transfer"
-                    )
+                currentMonthCollections
+                    .filter(x => x.paymentMode === "Bank Transfer")
                     .reduce(
 
                         (sum, x) =>
 
                             sum +
-                            Number(
-                                x.collectedAmount ||
-                                0
-                            ),
+                            Number(x.collectedAmount || 0),
 
                         0
 
                     ),
 
 
+            // CURRENT MONTH CHEQUE
             cheque:
 
-                collections
-                    .filter(
-                        x =>
-                            x.paymentMode ===
-                            "Cheque"
-                    )
+                currentMonthCollections
+                    .filter(x => x.paymentMode === "Cheque")
                     .reduce(
 
                         (sum, x) =>
 
                             sum +
-                            Number(
-                                x.collectedAmount ||
-                                0
-                            ),
+                            Number(x.collectedAmount || 0),
 
                         0
 
@@ -1509,23 +1507,51 @@ exports.getDashboard = async (req, res) => {
         // =================================================
         // PRODUCTION TOTALS
         // =================================================
+        // =================================================
+        // CURRENT MONTH PRODUCTION FILTER
+        // =================================================
 
+        // const now = new Date();
+
+        const currentMonthStart = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            1
+        );
+
+        const nextMonthStart = new Date(
+            now.getFullYear(),
+            now.getMonth() + 1,
+            1
+        );
+
+        const currentMonthProductions = productions.filter(production => {
+
+            const productionDate = new Date(production.productionDate);
+
+            return (
+                productionDate >= currentMonthStart &&
+                productionDate < nextMonthStart
+            );
+
+        });
         const productionTotals = {
 
+            // Total Productions - Current Month
             totalProductions:
-                productions.length,
+                currentMonthProductions.length,
 
 
+            // Total Produced Weight - Current Month
             totalProducedWeightKg:
 
-                productions.reduce(
+                currentMonthProductions.reduce(
 
                     (sum, x) =>
 
                         sum +
                         Number(
-                            x.totalProducedWeightKg ||
-                            0
+                            x.totalProducedWeightKg || 0
                         ),
 
                     0
@@ -1533,16 +1559,16 @@ exports.getDashboard = async (req, res) => {
                 ),
 
 
+            // Total Waste - Current Month
             totalWasteKg:
 
-                productions.reduce(
+                currentMonthProductions.reduce(
 
                     (sum, x) =>
 
                         sum +
                         Number(
-                            x.wasteKg ||
-                            0
+                            x.wasteKg || 0
                         ),
 
                     0
@@ -1550,9 +1576,10 @@ exports.getDashboard = async (req, res) => {
                 ),
 
 
+            // Total Produced Packs - Current Month
             totalProducedPacks:
 
-                productions.reduce(
+                currentMonthProductions.reduce(
 
                     (sum, production) =>
 
@@ -1568,8 +1595,7 @@ exports.getDashboard = async (req, res) => {
 
                                     itemSum +
                                     Number(
-                                        item.packsProduced ||
-                                        0
+                                        item.packsProduced || 0
                                     ),
 
                                 0
@@ -1865,97 +1891,101 @@ exports.getDashboard = async (req, res) => {
 
 
         // =================================================
-        // RECENT ORDERS
+        // TODAY RECENT ORDERS
         // =================================================
 
         const recentOrders =
 
             orders
-                .slice(
-                    0,
-                    10
-                )
-                .map(
-                    order => ({
+                .filter(order => {
 
-                        orderNumber:
-                            order.orderNumber,
+                    const date = new Date(order.orderDate);
 
-                        orderDate:
-                            order.orderDate,
+                    return (
+                        date >= startOfDay &&
+                        date <= endOfDay
+                    );
 
-                        party:
-                            order.party,
+                })
+                .slice(0, 10)
+                .map(order => ({
 
-                        employee:
-                            order.employee,
+                    orderId: order._id,
 
-                        partyType:
-                            order.partyType,
+                    orderNumber:
+                        order.orderNumber,
 
-                        grandTotal:
-                            Number(
-                                order.grandTotal ||
-                                0
-                            ),
+                    orderDate:
+                        order.orderDate,
 
-                        paymentStatus:
-                            order.paymentStatus,
+                    party:
+                        order.party,
 
-                        orderStatus:
-                            order.orderStatus,
+                    employee:
+                        order.employee,
 
-                        balanceAmount:
-                            Number(
-                                order.balanceAmount ||
-                                0
-                            )
+                    partyType:
+                        order.partyType,
 
-                    })
-                );
+                    grandTotal:
+                        Number(order.grandTotal || 0),
 
+                    paymentStatus:
+                        order.paymentStatus,
+
+                    orderStatus:
+                        order.orderStatus,
+
+                    balanceAmount:
+                        Number(order.balanceAmount || 0)
+
+                }));
 
         // =================================================
-        // RECENT DELIVERIES
+        // TODAY RECENT DELIVERIES
         // =================================================
 
         const recentDeliveries =
 
             deliveries
-                .slice(
-                    0,
-                    10
-                )
-                .map(
-                    delivery => ({
+                .filter(delivery => {
 
-                        deliveryNumber:
-                            delivery.deliveryNumber,
+                    const date = new Date(delivery.deliveryDate);
 
-                        deliveryDate:
-                            delivery.deliveryDate,
+                    return (
+                        date >= startOfDay &&
+                        date <= endOfDay
+                    );
 
-                        order:
-                            delivery.order,
+                })
+                .slice(0, 10)
+                .map(delivery => ({
 
-                        party:
-                            delivery.party,
+                    deliveryNumber:
+                        delivery.deliveryNumber,
 
-                        deliveryBoy:
-                            delivery.deliveryBoy,
+                    deliveryDate:
+                        delivery.deliveryDate,
 
-                        deliveryStatus:
-                            delivery.deliveryStatus,
+                    order:
+                        delivery.order,
 
-                        dispatchedAt:
-                            delivery.dispatchedAt,
+                    party:
+                        delivery.party,
 
-                        deliveredAt:
-                            delivery.deliveredAt
+                    deliveryBoy:
+                        delivery.deliveryBoy,
 
-                    })
-                );
+                    deliveryStatus:
+                        delivery.deliveryStatus,
 
+                    dispatchedAt:
+                        delivery.dispatchedAt,
+
+                    deliveredAt:
+                        delivery.deliveredAt
+
+                }));
 
         // =================================================
         // ROLE BASED RESPONSE
@@ -2359,13 +2389,7 @@ exports.getDashboard = async (req, res) => {
                         recentDeliveries,
 
 
-                    collections:
-
-                        collections
-                            .slice(
-                                0,
-                                10
-                            )
+                    collections: todayCollections.slice(0, 10)
 
                 }
 

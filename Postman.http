@@ -385,9 +385,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhYWE4MTYyY
 
 
 ###
-GET http://localhost:3002/api/getbyid-orders/6ab62e2c211de0e91f532732
+GET http://localhost:3002/api/getbyid-orders/6ae467c91998a11143bd10bc
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhYWE4MTYyYjIyZWVhYjRkMzA4ZDllNiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc5MDE3MzU1MCwiZXhwIjoxNzkwNzc4MzUwfQ.HbfVEPN0H6Tv2zliNHwU5D1Us5l8Mw523HqBDRnaQ5A
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhYmQxYjI4OWJmZTdlYmJiMjBlN2YwZiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc5NDMwNDU3NCwiZXhwIjoxNzk0OTA5Mzc0fQ.mzANecN4x5AMyyIBtaW9a2x-KQr2VIA1ETnjfx8YIZg
 
 
 ###
@@ -446,21 +446,21 @@ GET http://localhost:3002/api/employee-orders/6aacf818283ee01d5bfdc1cf
 Content-Type: application/json
 
 ###
-POST http://localhost:3002/api/create-order-items
+POST http://localhost:3002/api/create-order-item
 Content-Type: application/json
 
 {
-    "order":"6a23f5e6aa386897f1779aad",
+    "order":"6ae1cac4595341a524483227",
 
-    "product":"6a2308db0b125e5c260b6a0f",
+    "product":"6ad09071f0284e7d6effe98b",
 
-    "variantId":"6a2308db0b125e5c260b6a10",
+    "variantId":"6ad09071f0284e7d6effe98c",
 
-    "packSize":"500 GM",
+    "packSize":"50 GM",
 
-    "price":250,
+    "price":180,
 
-    "discountAmount":20,
+    "discountAmount":0,
 
     "gstPercentage":5,
 
@@ -966,7 +966,13 @@ Content-Type: application/json
 ###
 GET http://localhost:3002/api/get-dashboard
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhZGM3N2E5ZmQ3NmE1ZTZiZTM1NmMxNyIsInJvbGUiOiJXYXJlaG91c2VNYW5hZ2VyIiwid2FyZWhvdXNlSWQiOiI2YWRhM2I4NmUxYWM3MDU1MjNlMjBiY2YiLCJhcmVhSWQiOiI2YWRjNzc0YWZkNzZhNWU2YmUzNTZiZmUiLCJpYXQiOjE3OTI5ODk1MTYsImV4cCI6MTc5MzU5NDMxNn0.go6WzvwOaWJVYTxgGDNZk8cvdEAaC49dT9ZdegB-MSs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhYmQxYjI4OWJmZTdlYmJiMjBlN2YwZiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc5NDMwNDU3NCwiZXhwIjoxNzk0OTA5Mzc0fQ.mzANecN4x5AMyyIBtaW9a2x-KQr2VIA1ETnjfx8YIZg
+
+
+###
+GET http://localhost:3002/api/warehouse/distributors
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhZGY4ZTA3NzY3NmIxMTdjOTczMTFmNSIsInJvbGUiOiJXYXJlaG91c2VNYW5hZ2VyIiwid2FyZWhvdXNlSWQiOiI2YWNlN2NiOTJkZmI1MjM2YmM3NTIxZjkiLCJhcmVhSWQiOiI2YWRmN2JjMDc2NzZiMTE3Yzk3MzBkNDgiLCJpYXQiOjE3OTQzOTA0MTAsImV4cCI6MTc5NDk5NTIxMH0.SYz40cdo-FhGIjVu45RYG09FWVdSRw5A0FuhdOMNnWI
 
 
 

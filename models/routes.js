@@ -1,25 +1,25 @@
 const mongoose = require("mongoose");
 
-const routeSchema = new mongoose.Schema({
-
+const routeSchema = new mongoose.Schema(
+  {
     // ======================
     // BASIC DETAILS
     // ======================
     routeName: {
-        type: String,
-        required: true,
-        trim: true
+      type: String,
+      required: true,
+      trim: true,
     },
 
     routeCode: {
-        type: String,
-        required: true,
-        unique: true,
-        uppercase: true
+      type: String,
+      required: true,
+      unique: true,
+      uppercase: true,
     },
     description: {
-        type: String,
-        default: ""
+      type: String,
+      default: "",
     },
 
     // ======================
@@ -27,9 +27,9 @@ const routeSchema = new mongoose.Schema({
     // ======================
 
     area: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Area",
-        required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Area",
+      required: true,
     },
 
     // ======================
@@ -37,24 +37,26 @@ const routeSchema = new mongoose.Schema({
     // ======================
 
     salesManager: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        default: null
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
     },
 
-    salesmen: [{
+    salesmen: [
+      {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-    }],
+        ref: "User",
+      },
+    ],
 
     // ======================
     // DISTRIBUTOR
     // ======================
 
     distributor: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        default: null
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
     },
 
     // ======================
@@ -62,13 +64,13 @@ const routeSchema = new mongoose.Schema({
     // ======================
 
     monthlySalesTarget: {
-        type: Number,
-        default: 0
+      type: Number,
+      default: 0,
     },
 
     monthlyCollectionTarget: {
-        type: Number,
-        default: 0
+      type: Number,
+      default: 0,
     },
 
     // ======================
@@ -76,24 +78,19 @@ const routeSchema = new mongoose.Schema({
     // ======================
 
     status: {
-        type: String,
-        enum: [
-            "Active",
-            "Inactive"
-        ],
-        default: "Active"
+      type: String,
+      enum: ["Active", "Inactive"],
+      default: "Active",
     },
 
     isDeleted: {
-        type: Boolean,
-        default: false
-    }
-
-}, {
-    timestamps: true
-});
-
-module.exports = mongoose.model(
-    "Route",
-    routeSchema
+      type: Boolean,
+      default: false,
+    },
+  },
+  {
+    timestamps: true,
+  },
 );
+
+module.exports = mongoose.model("Route", routeSchema);

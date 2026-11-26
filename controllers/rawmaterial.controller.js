@@ -5,880 +5,652 @@ const StockReceive = require("../models/stock-receive");
 // ======================================
 
 exports.createRawMaterial = async (req, res) => {
-
-    try {
-
-        const {
-
-            rawMaterialName,
-            rawMaterialCode,
-            brand,
-            category,
-            hsnCode,
-            gstPercentage,
-            unit,
-            description,
-            status
-
-        } = req.body;
-
-        // ==========================
-        // Validation
-        // ==========================
-
-        if (!rawMaterialName) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message: "Raw Material Name is required."
-
-            });
-
-        }
-
-        if (!rawMaterialCode) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message: "Raw Material Code is required."
-
-            });
-
-        }
-
-        if (!brand) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message: "Please select Brand."
-
-            });
-
-        }
-
-        if (!category) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message: "Please select Category."
-
-            });
-
-        }
-
-        // ==========================
-        // Duplicate Name
-        // ==========================
-
-        const nameExists = await RawMaterial.findOne({
-
-            rawMaterialName: rawMaterialName.trim(),
-
-            isDeleted: false
-
-        });
-
-        if (nameExists) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message: "Raw Material Name already exists."
-
-            });
-
-        }
-
-        // ==========================
-        // Duplicate Code
-        // ==========================
-
-        const codeExists = await RawMaterial.findOne({
-
-            rawMaterialCode: rawMaterialCode.trim().toUpperCase(),
-
-            isDeleted: false
-
-        });
-
-        if (codeExists) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message: "Raw Material Code already exists."
-
-            });
-
-        }
-
-        // ==========================
-        // Create
-        // ==========================
-
-        const rawMaterial = await RawMaterial.create({
-
-            rawMaterialName,
-
-            rawMaterialCode: rawMaterialCode.toUpperCase(),
-
-            brand,
-
-            category,
-
-            hsnCode,
-
-            gstPercentage,
-
-            unit,
-
-            description,
-
-            status
-
-        });
-
-        // ==========================
-        // Populate
-        // ==========================
-
-        const response = await RawMaterial.findById(rawMaterial._id)
-
-            .populate("brand", "brandName brandCode")
-
-            .populate("category", "categoryName categoryCode");
-
-        return res.status(201).json({
-
-            success: true,
-
-            message: "Raw Material Created Successfully.",
-
-            data: response
-
-        });
-
+  try {
+    const {
+      rawMaterialName,
+      rawMaterialCode,
+      brand,
+      category,
+      hsnCode,
+      gstPercentage,
+      unit,
+      description,
+      status,
+    } = req.body;
+
+    // ==========================
+    // Validation
+    // ==========================
+
+    if (!rawMaterialName) {
+      return res.status(400).json({
+        success: false,
+
+        message: "Raw Material Name is required.",
+      });
     }
 
-    catch (error) {
+    if (!rawMaterialCode) {
+      return res.status(400).json({
+        success: false,
 
-        console.log(error);
-
-        return res.status(500).json({
-
-            success: false,
-
-            message: error.message
-
-        });
-
+        message: "Raw Material Code is required.",
+      });
     }
 
+    if (!brand) {
+      return res.status(400).json({
+        success: false,
+
+        message: "Please select Brand.",
+      });
+    }
+
+    if (!category) {
+      return res.status(400).json({
+        success: false,
+
+        message: "Please select Category.",
+      });
+    }
+
+    // ==========================
+    // Duplicate Name
+    // ==========================
+
+    const nameExists = await RawMaterial.findOne({
+      rawMaterialName: rawMaterialName.trim(),
+
+      isDeleted: false,
+    });
+
+    if (nameExists) {
+      return res.status(400).json({
+        success: false,
+
+        message: "Raw Material Name already exists.",
+      });
+    }
+
+    // ==========================
+    // Duplicate Code
+    // ==========================
+
+    const codeExists = await RawMaterial.findOne({
+      rawMaterialCode: rawMaterialCode.trim().toUpperCase(),
+
+      isDeleted: false,
+    });
+
+    if (codeExists) {
+      return res.status(400).json({
+        success: false,
+
+        message: "Raw Material Code already exists.",
+      });
+    }
+
+    // ==========================
+    // Create
+    // ==========================
+
+    const rawMaterial = await RawMaterial.create({
+      rawMaterialName,
+
+      rawMaterialCode: rawMaterialCode.toUpperCase(),
+
+      brand,
+
+      category,
+
+      hsnCode,
+
+      gstPercentage,
+
+      unit,
+
+      description,
+
+      status,
+    });
+
+    // ==========================
+    // Populate
+    // ==========================
+
+    const response = await RawMaterial.findById(rawMaterial._id)
+
+      .populate("brand", "brandName brandCode")
+
+      .populate("category", "categoryName categoryCode");
+
+    return res.status(201).json({
+      success: true,
+
+      message: "Raw Material Created Successfully.",
+
+      data: response,
+    });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      success: false,
+
+      message: error.message,
+    });
+  }
 };
 // ======================================
 // GET ALL RAW MATERIALS
 // ======================================
 
 exports.getAllRawMaterials = async (req, res) => {
+  try {
+    const {
+      search = "",
 
-    try {
+      status,
 
-        const {
+      page = 1,
 
-            search = "",
+      limit = 10,
+    } = req.query;
 
-            status,
+    const query = {
+      isDeleted: false,
+    };
 
-            page = 1,
+    // ==========================
+    // Search
+    // ==========================
 
-            limit = 10
+    if (search) {
+      query.$or = [
+        {
+          rawMaterialName: {
+            $regex: search,
+            $options: "i",
+          },
+        },
 
-        } = req.query;
-
-        const query = {
-
-            isDeleted: false
-
-        };
-
-        // ==========================
-        // Search
-        // ==========================
-
-        if (search) {
-
-            query.$or = [
-
-                {
-                    rawMaterialName: {
-                        $regex: search,
-                        $options: "i"
-                    }
-                },
-
-                {
-                    rawMaterialCode: {
-                        $regex: search,
-                        $options: "i"
-                    }
-                }
-
-            ];
-
-        }
-
-        // ==========================
-        // Status Filter
-        // ==========================
-
-        if (status) {
-
-            query.status = status;
-
-        }
-
-        const skip =
-
-            (Number(page) - 1) * Number(limit);
-
-        // ==========================
-        // Data
-        // ==========================
-
-        const rawMaterials = await RawMaterial.find(query)
-
-            .populate(
-
-                "brand",
-
-                "brandName brandCode"
-
-            )
-
-            .populate(
-
-                "category",
-
-                "categoryName categoryCode"
-
-            )
-
-            .sort({
-
-                createdAt: -1
-
-            })
-
-            .skip(skip)
-
-            .limit(Number(limit));
-
-        const totalRecords =
-
-            await RawMaterial.countDocuments(query);
-
-        return res.status(200).json({
-
-            success: true,
-
-            count: rawMaterials.length,
-
-            totalRecords,
-
-            currentPage: Number(page),
-
-            totalPages: Math.ceil(
-
-                totalRecords / Number(limit)
-
-            ),
-
-            data: rawMaterials
-
-        });
-
+        {
+          rawMaterialCode: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+      ];
     }
 
-    catch (error) {
+    // ==========================
+    // Status Filter
+    // ==========================
 
-        console.log(error);
-
-        return res.status(500).json({
-
-            success: false,
-
-            message: error.message
-
-        });
-
+    if (status) {
+      query.status = status;
     }
 
+    const skip = (Number(page) - 1) * Number(limit);
+
+    // ==========================
+    // Data
+    // ==========================
+
+    const rawMaterials = await RawMaterial.find(query)
+
+      .populate(
+        "brand",
+
+        "brandName brandCode",
+      )
+
+      .populate(
+        "category",
+
+        "categoryName categoryCode",
+      )
+
+      .sort({
+        createdAt: -1,
+      })
+
+      .skip(skip)
+
+      .limit(Number(limit));
+
+    const totalRecords = await RawMaterial.countDocuments(query);
+
+    return res.status(200).json({
+      success: true,
+
+      count: rawMaterials.length,
+
+      totalRecords,
+
+      currentPage: Number(page),
+
+      totalPages: Math.ceil(totalRecords / Number(limit)),
+
+      data: rawMaterials,
+    });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      success: false,
+
+      message: error.message,
+    });
+  }
 };
 // ======================================
 // GET RAW MATERIAL BY ID
 // ======================================
 
 exports.getRawMaterialById = async (req, res) => {
+  try {
+    const { id } = req.params;
 
-    try {
+    const rawMaterial = await RawMaterial.findOne({
+      _id: id,
 
-        const { id } = req.params;
+      isDeleted: false,
+    })
 
-        const rawMaterial = await RawMaterial.findOne({
+      .populate(
+        "brand",
 
-            _id: id,
+        "brandName brandCode",
+      )
 
-            isDeleted: false
+      .populate(
+        "category",
 
-        })
+        "categoryName categoryCode",
+      );
 
-            .populate(
+    if (!rawMaterial) {
+      return res.status(404).json({
+        success: false,
 
-                "brand",
-
-                "brandName brandCode"
-
-            )
-
-            .populate(
-
-                "category",
-
-                "categoryName categoryCode"
-
-            );
-
-        if (!rawMaterial) {
-
-            return res.status(404).json({
-
-                success: false,
-
-                message: "Raw Material not found."
-
-            });
-
-        }
-
-        return res.status(200).json({
-
-            success: true,
-
-            data: rawMaterial
-
-        });
-
+        message: "Raw Material not found.",
+      });
     }
 
-    catch (error) {
+    return res.status(200).json({
+      success: true,
 
-        console.log(error);
+      data: rawMaterial,
+    });
+  } catch (error) {
+    console.log(error);
 
-        return res.status(500).json({
+    return res.status(500).json({
+      success: false,
 
-            success: false,
-
-            message: error.message
-
-        });
-
-    }
-
+      message: error.message,
+    });
+  }
 };
 // ======================================
 // UPDATE RAW MATERIAL
 // ======================================
 
 exports.updateRawMaterial = async (req, res) => {
-
-    try {
-
-        const { id } = req.params;
-
-        const {
-
-            rawMaterialName,
-            rawMaterialCode,
-            brand,
-            category,
-            hsnCode,
-            gstPercentage,
-            unit,
-            description,
-            status
-
-        } = req.body;
-
-        // ==========================
-        // Check Raw Material
-        // ==========================
-
-        const rawMaterial = await RawMaterial.findOne({
-
-            _id: id,
-
-            isDeleted: false
-
-        });
-
-        if (!rawMaterial) {
-
-            return res.status(404).json({
-
-                success: false,
-
-                message: "Raw Material not found."
-
-            });
-
-        }
-
-        // ==========================
-        // Validation
-        // ==========================
-
-        if (!rawMaterialName) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message: "Raw Material Name is required."
-
-            });
-
-        }
-
-        if (!rawMaterialCode) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message: "Raw Material Code is required."
-
-            });
-
-        }
-
-        if (!brand) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message: "Please select Brand."
-
-            });
-
-        }
-
-        if (!category) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message: "Please select Category."
-
-            });
-
-        }
-
-        // ==========================
-        // Duplicate Name
-        // ==========================
-
-        const duplicateName = await RawMaterial.findOne({
-
-            _id: { $ne: id },
-
-            rawMaterialName: rawMaterialName.trim(),
-
-            isDeleted: false
-
-        });
-
-        if (duplicateName) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message: "Raw Material Name already exists."
-
-            });
-
-        }
-
-        // ==========================
-        // Duplicate Code
-        // ==========================
-        const code = rawMaterialCode.trim().toUpperCase();
-
-        console.log("Update ID :", id);
-
-        console.log("Code :", code);
-
-        const duplicateCode = await RawMaterial.findOne({
-
-            _id: { $ne: id },
-
-            rawMaterialCode: rawMaterialCode.trim().toUpperCase(),
-
-            isDeleted: false
-
-        });
-        console.log("Duplicate Record :", duplicateCode);
-
-        if (duplicateCode) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message: "Raw Material Code already exists."
-
-            });
-
-        }
-
-        // ==========================
-        // Update
-        // ==========================
-
-        rawMaterial.rawMaterialName = rawMaterialName;
-
-        rawMaterial.rawMaterialCode = rawMaterialCode.toUpperCase();
-
-        rawMaterial.brand = brand;
-
-        rawMaterial.category = category;
-
-        rawMaterial.hsnCode = hsnCode;
-
-        rawMaterial.gstPercentage = gstPercentage;
-
-        rawMaterial.unit = unit;
-
-        rawMaterial.description = description;
-
-        rawMaterial.status = status;
-
-        await rawMaterial.save();
-
-        // ==========================
-        // Populate Response
-        // ==========================
-
-        const response = await RawMaterial.findById(id)
-
-            .populate(
-
-                "brand",
-
-                "brandName brandCode"
-
-            )
-
-            .populate(
-
-                "category",
-
-                "categoryName categoryCode"
-
-            );
-
-        return res.status(200).json({
-
-            success: true,
-
-            message: "Raw Material Updated Successfully.",
-
-            data: response
-
-        });
-
+  try {
+    const { id } = req.params;
+
+    const {
+      rawMaterialName,
+      rawMaterialCode,
+      brand,
+      category,
+      hsnCode,
+      gstPercentage,
+      unit,
+      description,
+      status,
+    } = req.body;
+
+    // ==========================
+    // Check Raw Material
+    // ==========================
+
+    const rawMaterial = await RawMaterial.findOne({
+      _id: id,
+
+      isDeleted: false,
+    });
+
+    if (!rawMaterial) {
+      return res.status(404).json({
+        success: false,
+
+        message: "Raw Material not found.",
+      });
     }
 
-    catch (error) {
+    // ==========================
+    // Validation
+    // ==========================
 
-        console.log(error);
+    if (!rawMaterialName) {
+      return res.status(400).json({
+        success: false,
 
-        return res.status(500).json({
-
-            success: false,
-
-            message: error.message
-
-        });
-
+        message: "Raw Material Name is required.",
+      });
     }
 
+    if (!rawMaterialCode) {
+      return res.status(400).json({
+        success: false,
+
+        message: "Raw Material Code is required.",
+      });
+    }
+
+    if (!brand) {
+      return res.status(400).json({
+        success: false,
+
+        message: "Please select Brand.",
+      });
+    }
+
+    if (!category) {
+      return res.status(400).json({
+        success: false,
+
+        message: "Please select Category.",
+      });
+    }
+
+    // ==========================
+    // Duplicate Name
+    // ==========================
+
+    const duplicateName = await RawMaterial.findOne({
+      _id: { $ne: id },
+
+      rawMaterialName: rawMaterialName.trim(),
+
+      isDeleted: false,
+    });
+
+    if (duplicateName) {
+      return res.status(400).json({
+        success: false,
+
+        message: "Raw Material Name already exists.",
+      });
+    }
+
+    // ==========================
+    // Duplicate Code
+    // ==========================
+    const code = rawMaterialCode.trim().toUpperCase();
+
+    console.log("Update ID :", id);
+
+    console.log("Code :", code);
+
+    const duplicateCode = await RawMaterial.findOne({
+      _id: { $ne: id },
+
+      rawMaterialCode: rawMaterialCode.trim().toUpperCase(),
+
+      isDeleted: false,
+    });
+    console.log("Duplicate Record :", duplicateCode);
+
+    if (duplicateCode) {
+      return res.status(400).json({
+        success: false,
+
+        message: "Raw Material Code already exists.",
+      });
+    }
+
+    // ==========================
+    // Update
+    // ==========================
+
+    rawMaterial.rawMaterialName = rawMaterialName;
+
+    rawMaterial.rawMaterialCode = rawMaterialCode.toUpperCase();
+
+    rawMaterial.brand = brand;
+
+    rawMaterial.category = category;
+
+    rawMaterial.hsnCode = hsnCode;
+
+    rawMaterial.gstPercentage = Number(gstPercentage);
+
+    rawMaterial.unit = unit;
+
+    rawMaterial.description = description;
+
+    rawMaterial.status = status;
+
+    await rawMaterial.save();
+
+    // ==========================
+    // Populate Response
+    // ==========================
+
+    const response = await RawMaterial.findById(id)
+
+      .populate(
+        "brand",
+
+        "brandName brandCode",
+      )
+
+      .populate(
+        "category",
+
+        "categoryName categoryCode",
+      );
+
+    return res.status(200).json({
+      success: true,
+
+      message: "Raw Material Updated Successfully.",
+
+      data: response,
+    });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      success: false,
+
+      message: error.message,
+    });
+  }
 };
 // ======================================
 // DELETE RAW MATERIAL (SOFT DELETE)
 // ======================================
 
 exports.deleteRawMaterial = async (req, res) => {
+  try {
+    const { id } = req.params;
 
-    try {
+    const rawMaterial = await RawMaterial.findOne({
+      _id: id,
 
-        const { id } = req.params;
+      isDeleted: false,
+    });
 
-        const rawMaterial = await RawMaterial.findOne({
+    if (!rawMaterial) {
+      return res.status(404).json({
+        success: false,
 
-            _id: id,
-
-            isDeleted: false
-
-        });
-
-        if (!rawMaterial) {
-
-            return res.status(404).json({
-
-                success: false,
-
-                message: "Raw Material not found."
-
-            });
-
-        }
-
-        // ==========================
-        // Soft Delete
-        // ==========================
-
-        rawMaterial.isDeleted = true;
-
-        await rawMaterial.save();
-
-        return res.status(200).json({
-
-            success: true,
-
-            message: "Raw Material Deleted Successfully."
-
-        });
-
+        message: "Raw Material not found.",
+      });
     }
 
-    catch (error) {
+    // ==========================
+    // Soft Delete
+    // ==========================
 
-        console.log(error);
+    rawMaterial.isDeleted = true;
 
-        return res.status(500).json({
+    await rawMaterial.save();
 
-            success: false,
+    return res.status(200).json({
+      success: true,
 
-            message: error.message
+      message: "Raw Material Deleted Successfully.",
+    });
+  } catch (error) {
+    console.log(error);
 
-        });
+    return res.status(500).json({
+      success: false,
 
-    }
-
+      message: error.message,
+    });
+  }
 };
 // ======================================
 // GET RAW MATERIAL DROPDOWN
 // ======================================
 
 exports.getRawMaterialDropdown = async (req, res) => {
+  try {
+    const rawMaterials = await RawMaterial.find({
+      isDeleted: false,
 
-    try {
+      status: "Active",
+    })
 
-        const rawMaterials = await RawMaterial.find({
+      .select("rawMaterialName rawMaterialCode unit")
 
-            isDeleted: false,
+      .sort({
+        rawMaterialName: 1,
+      });
 
-            status: "Active"
+    return res.status(200).json({
+      success: true,
 
-        })
+      count: rawMaterials.length,
 
-            .select(
+      data: rawMaterials,
+    });
+  } catch (error) {
+    console.log(error);
 
-                "rawMaterialName rawMaterialCode unit"
+    return res.status(500).json({
+      success: false,
 
-            )
-
-            .sort({
-
-                rawMaterialName: 1
-
-            });
-
-        return res.status(200).json({
-
-            success: true,
-
-            count: rawMaterials.length,
-
-            data: rawMaterials
-
-        });
-
-    }
-
-    catch (error) {
-
-        console.log(error);
-
-        return res.status(500).json({
-
-            success: false,
-
-            message: error.message
-
-        });
-
-    }
-
+      message: error.message,
+    });
+  }
 };
 // ==========================================
 // Get Raw Materials By Warehouse
 // ==========================================
 
 exports.getRawMaterialStockByWarehouse = async (req, res) => {
+  try {
+    const { warehouseId } = req.params;
 
-    try {
+    // ==========================================
+    // GET STOCK RECEIVES
+    // ==========================================
 
-        const { warehouseId } = req.params;
+    const stockReceives = await StockReceive.find({
+      warehouse: warehouseId,
 
-        // ==========================================
-        // GET STOCK RECEIVES
-        // ==========================================
+      status: {
+        $ne: "Completed",
+      },
+    })
+      .populate("supplier", "supplierName supplierCode")
+      .populate("items.rawMaterial", "rawMaterialName rawMaterialCode unit")
+      .sort({
+        receivedDate: -1,
+      });
 
-        const stockReceives = await StockReceive.find({
+    // ==========================================
+    // STOCK LIST
+    // ==========================================
 
-            warehouse: warehouseId,
+    const stockList = [];
 
-            status: {
-                $ne: "Completed"
-            }
+    // ==========================================
+    // PROCESS STOCK
+    // ==========================================
 
-        })
-            .populate(
-                "supplier",
-                "supplierName supplierCode"
-            )
-            .populate(
-                "items.rawMaterial",
-                "rawMaterialName rawMaterialCode unit"
-            )
-            .sort({
-                receivedDate: -1
-            });
+    stockReceives.forEach((stockReceive) => {
+      stockReceive.items.forEach((item) => {
+        // ----------------------------------
+        // Skip invalid / fully consumed stock
+        // ----------------------------------
 
+        if (!item.rawMaterial) return;
 
-        // ==========================================
-        // STOCK LIST
-        // ==========================================
+        if (item.availableWeightKg <= 0) return;
 
-        const stockList = [];
+        stockList.push({
+          stockReceiveId: stockReceive._id,
 
+          receiveNo: stockReceive.receiveNo,
 
-        // ==========================================
-        // PROCESS STOCK
-        // ==========================================
+          receivedDate: stockReceive.receivedDate,
 
-        stockReceives.forEach(stockReceive => {
+          supplier: stockReceive.supplier
+            ? stockReceive.supplier.supplierName
+            : "",
 
-            stockReceive.items.forEach(item => {
+          rawMaterialId: item.rawMaterial._id,
 
-                // ----------------------------------
-                // Skip invalid / fully consumed stock
-                // ----------------------------------
+          rawMaterialName: item.rawMaterial.rawMaterialName,
 
-                if (!item.rawMaterial) return;
+          rawMaterialCode: item.rawMaterial.rawMaterialCode,
 
-                if (item.availableWeightKg <= 0) return;
+          unit: item.rawMaterial.unit,
 
+          batchNo: item.batchNo,
 
-                stockList.push({
+          noOfBags: item.noOfBags,
 
-                    stockReceiveId: stockReceive._id,
+          bagWeightKg: item.bagWeightKg,
 
-                    receiveNo: stockReceive.receiveNo,
+          totalWeightKg: item.totalWeightKg,
 
-                    receivedDate: stockReceive.receivedDate,
+          availableWeightKg: item.availableWeightKg,
 
-                    supplier: stockReceive.supplier
-                        ? stockReceive.supplier.supplierName
-                        : "",
+          usedWeightKg: item.totalWeightKg - item.availableWeightKg,
 
-                    rawMaterialId: item.rawMaterial._id,
+          rate: item.rate,
 
-                    rawMaterialName:
-                        item.rawMaterial.rawMaterialName,
-
-                    rawMaterialCode:
-                        item.rawMaterial.rawMaterialCode,
-
-                    unit:
-                        item.rawMaterial.unit,
-
-                    batchNo: item.batchNo,
-
-                    noOfBags: item.noOfBags,
-
-                    bagWeightKg: item.bagWeightKg,
-
-                    totalWeightKg: item.totalWeightKg,
-
-                    availableWeightKg:
-                        item.availableWeightKg,
-
-                    usedWeightKg:
-                        item.totalWeightKg -
-                        item.availableWeightKg,
-
-                    rate: item.rate,
-
-                    amount: item.amount
-
-                });
-
-            });
-
+          amount: item.amount,
         });
+      });
+    });
 
+    // ==========================================
+    // RESPONSE
+    // ==========================================
 
-        // ==========================================
-        // RESPONSE
-        // ==========================================
+    return res.json({
+      success: true,
 
-        return res.json({
+      data: stockList,
+    });
+  } catch (error) {
+    console.log(error);
 
-            success: true,
+    return res.status(500).json({
+      success: false,
 
-            data: stockList
-
-        });
-
-    }
-
-    catch (error) {
-
-        console.log(error);
-
-        return res.status(500).json({
-
-            success: false,
-
-            message: error.message
-
-        });
-
-    }
-
+      message: error.message,
+    });
+  }
 };

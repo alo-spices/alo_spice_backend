@@ -1,36 +1,36 @@
 const mongoose = require("mongoose");
 
-const rawMaterialSchema = new mongoose.Schema({
-
+const rawMaterialSchema = new mongoose.Schema(
+  {
     rawMaterialName: {
-        type: String,
-        required: true,
-        trim: true
+      type: String,
+      required: true,
+      trim: true,
     },
 
     rawMaterialCode: {
-        type: String,
-        required: true,
-        unique: true,
-        uppercase: true,
-        trim: true
+      type: String,
+      required: true,
+      unique: true,
+      uppercase: true,
+      trim: true,
     },
 
     brand: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Brand",
-        required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Brand",
+      required: true,
     },
 
     category: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Category",
-        required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
     },
 
     hsnCode: {
-        type: String,
-        default: ""
+      type: String,
+      default: "",
     },
 
     // gstPercentage: {
@@ -39,39 +39,33 @@ const rawMaterialSchema = new mongoose.Schema({
     // },
 
     unit: {
-        type: String,
-        enum: [
-            "KG",
-            "GRAM",
-            "BAG"
-        ],
-        default: "KG"
+      type: String,
+      enum: ["KG", "GRAM", "BAG"],
+      default: "KG",
     },
 
     description: {
-        type: String,
-        default: ""
+      type: String,
+      default: "",
     },
 
     status: {
-        type: String,
-        enum: [
-            "Active",
-            "Inactive"
-        ],
-        default: "Active"
+      type: String,
+      enum: ["Active", "Inactive"],
+      default: "Active",
     },
-
+    gstPercentage: {
+      type: Number,
+      default: 5,
+    },
     isDeleted: {
-        type: Boolean,
-        default: false
-    }
-
-}, {
-    timestamps: true
-});
-
-module.exports = mongoose.model(
-    "RawMaterial",
-    rawMaterialSchema
+      type: Boolean,
+      default: false,
+    },
+  },
+  {
+    timestamps: true,
+  },
 );
+
+module.exports = mongoose.model("RawMaterial", rawMaterialSchema);

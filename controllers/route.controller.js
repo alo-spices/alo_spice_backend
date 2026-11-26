@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Route = require("../models/routes");
 const Area = require("../models/area");
 
@@ -6,94 +7,80 @@ const Area = require("../models/area");
 // ======================================
 
 exports.createRoute = async (req, res) => {
+  try {
+    const {
+      routeName,
+      routeCode,
+      area,
+      description,
+      monthlySalesTarget,
+      monthlyCollectionTarget,
+    } = req.body;
 
-    try {
-
-        const {
-            routeName,
-            routeCode,
-            area,
-            description,
-            monthlySalesTarget,
-            monthlyCollectionTarget
-        } = req.body;
-
-        if (!routeName) {
-            return res.status(400).json({
-                success: false,
-                message: "Route Name is required"
-            });
-        }
-
-        if (!routeCode) {
-            return res.status(400).json({
-                success: false,
-                message: "Route Code is required"
-            });
-        }
-
-        if (!area) {
-            return res.status(400).json({
-                success: false,
-                message: "Area is required"
-            });
-        }
-
-        const areaExists =
-            await Area.findById(area);
-
-        if (!areaExists) {
-            return res.status(404).json({
-                success: false,
-                message: "Area not found"
-            });
-        }
-
-        const existingRoute =
-            await Route.findOne({
-                routeCode,
-                isDeleted: false
-            });
-
-        if (existingRoute) {
-            return res.status(409).json({
-                success: false,
-                message: "Route Code already exists"
-            });
-        }
-
-        const route =
-            await Route.create({
-
-                routeName,
-                routeCode,
-                area,
-                description,
-                monthlySalesTarget,
-                monthlyCollectionTarget
-
-            });
-
-        return res.status(201).json({
-
-            success: true,
-
-            message: "Route created successfully",
-
-            data: route
-
-        });
-
-    }
-    catch (error) {
-
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        });
-
+    if (!routeName) {
+      return res.status(400).json({
+        success: false,
+        message: "Route Name is required",
+      });
     }
 
+    if (!routeCode) {
+      return res.status(400).json({
+        success: false,
+        message: "Route Code is required",
+      });
+    }
+
+    if (!area) {
+      return res.status(400).json({
+        success: false,
+        message: "Area is required",
+      });
+    }
+
+    const areaExists = await Area.findById(area);
+
+    if (!areaExists) {
+      return res.status(404).json({
+        success: false,
+        message: "Area not found",
+      });
+    }
+
+    const existingRoute = await Route.findOne({
+      routeCode,
+      isDeleted: false,
+    });
+
+    if (existingRoute) {
+      return res.status(409).json({
+        success: false,
+        message: "Route Code already exists",
+      });
+    }
+
+    const route = await Route.create({
+      routeName,
+      routeCode,
+      area,
+      description,
+      monthlySalesTarget,
+      monthlyCollectionTarget,
+    });
+
+    return res.status(201).json({
+      success: true,
+
+      message: "Route created successfully",
+
+      data: route,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 
 // ======================================
@@ -101,289 +88,232 @@ exports.createRoute = async (req, res) => {
 // ======================================
 
 exports.getRoutes = async (req, res) => {
+  try {
+    const routes = await Route.find({
+      isDeleted: false,
+    })
 
-    try {
+      .populate("area", "areaName areaCode")
 
-        const routes =
-            await Route.find({
+      .populate("salesManager", "fullName")
 
-                isDeleted: false
+      .populate("salesmen", "fullName")
 
-            })
+      .populate("distributor", "fullName");
 
-                .populate(
-                    "area",
-                    "areaName areaCode"
-                )
+    return res.status(200).json({
+      success: true,
 
-                .populate(
-                    "salesManager",
-                    "fullName"
-                )
+      count: routes.length,
 
-                .populate(
-                    "salesmen",
-                    "fullName"
-                )
-
-                .populate(
-                    "distributor",
-                    "fullName"
-                );
-
-        return res.status(200).json({
-
-            success: true,
-
-            count: routes.length,
-
-            data: routes
-
-        });
-
-    }
-    catch (error) {
-
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        });
-
-    }
-
+      data: routes,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 // ======================================
 // GET ROUTE BY ID
 // ======================================
 
 exports.getRouteById = async (req, res) => {
+  try {
+    const route = await Route.findOne({
+      _id: req.params.id,
 
-    try {
+      isDeleted: false,
+    })
 
-        const route =
-            await Route.findOne({
+      .populate("area")
+      .populate("salesManager")
+      .populate("salesmen")
+      .populate("distributor");
 
-                _id: req.params.id,
+    if (!route) {
+      return res.status(404).json({
+        success: false,
 
-                isDeleted: false
-
-            })
-
-                .populate("area")
-                .populate("salesManager")
-                .populate("salesmen")
-                .populate("distributor");
-
-        if (!route) {
-
-            return res.status(404).json({
-
-                success: false,
-
-                message: "Route not found"
-
-            });
-
-        }
-
-        return res.status(200).json({
-
-            success: true,
-
-            data: route
-
-        });
-
-    }
-    catch (error) {
-
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        });
-
+        message: "Route not found",
+      });
     }
 
+    return res.status(200).json({
+      success: true,
+
+      data: route,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 // ======================================
 // UPDATE ROUTE
 // ======================================
 
 exports.updateRoute = async (req, res) => {
+  try {
+    const route = await Route.findByIdAndUpdate(
+      req.params.id,
 
-    try {
+      req.body,
 
-        const route =
-            await Route.findByIdAndUpdate(
+      {
+        new: true,
+      },
+    );
 
-                req.params.id,
+    if (!route) {
+      return res.status(404).json({
+        success: false,
 
-                req.body,
-
-                {
-                    new: true
-                }
-
-            );
-
-        if (!route) {
-
-            return res.status(404).json({
-
-                success: false,
-
-                message: "Route not found"
-
-            });
-
-        }
-
-        return res.status(200).json({
-
-            success: true,
-
-            message: "Route updated successfully",
-
-            data: route
-
-        });
-
-    }
-    catch (error) {
-
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        });
-
+        message: "Route not found",
+      });
     }
 
+    return res.status(200).json({
+      success: true,
+
+      message: "Route updated successfully",
+
+      data: route,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 // ======================================
 // DELETE ROUTE
 // ======================================
 
 exports.deleteRoute = async (req, res) => {
+  try {
+    const route = await Route.findById(req.params.id);
 
-    try {
+    if (!route) {
+      return res.status(404).json({
+        success: false,
 
-        const route =
-            await Route.findById(
-                req.params.id
-            );
-
-        if (!route) {
-
-            return res.status(404).json({
-
-                success: false,
-
-                message: "Route not found"
-
-            });
-
-        }
-
-        route.isDeleted = true;
-
-        route.status = "Inactive";
-
-        await route.save();
-
-        return res.status(200).json({
-
-            success: true,
-
-            message: "Route deleted successfully"
-
-        });
-
-    }
-    catch (error) {
-
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        });
-
+        message: "Route not found",
+      });
     }
 
+    route.isDeleted = true;
+
+    route.status = "Inactive";
+
+    await route.save();
+
+    return res.status(200).json({
+      success: true,
+
+      message: "Route deleted successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 
-
 exports.getRouteSummary = async (req, res) => {
+  try {
+    const totalShops = await Party.countDocuments({
+      route: req.params.routeId,
 
-    try {
+      isDeleted: false,
+    });
 
-        const totalShops = await Party.countDocuments({
+    const visits = await Visit.countDocuments({
+      route: req.params.routeId,
+    });
 
-            route: req.params.routeId,
+    const orders = await Order.countDocuments({
+      route: req.params.routeId,
+    });
 
-            isDeleted: false
+    const collections = await Collection.aggregate([
+      {
+        $lookup: {
+          from: "parties",
 
-        });
+          localField: "party",
 
-        const visits = await Visit.countDocuments({
+          foreignField: "_id",
 
-            route: req.params.routeId
+          as: "party",
+        },
+      },
+    ]);
 
-        });
+    return res.status(200).json({
+      success: true,
 
-        const orders = await Order.countDocuments({
+      data: {
+        totalShops,
 
-            route: req.params.routeId
+        visits,
 
-        });
+        orders,
 
-        const collections = await Collection.aggregate([
+        collections: collections.length,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
 
-            {
-                $lookup: {
+      message: error.message,
+    });
+  }
+};
 
-                    from: "parties",
+// GET ROUTES BY AREA ID
+exports.getRoutesByArea = async (req, res) => {
+  try {
+    const { areaId } = req.params;
 
-                    localField: "party",
-
-                    foreignField: "_id",
-
-                    as: "party"
-
-                }
-
-            }
-
-        ]);
-
-        return res.status(200).json({
-
-            success: true,
-
-            data: {
-
-                totalShops,
-
-                visits,
-
-                orders,
-
-                collections: collections.length
-
-            }
-
-        });
-
+    // Validate Area ID
+    if (!mongoose.Types.ObjectId.isValid(areaId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Area ID",
+      });
     }
 
-    catch (error) {
+    const routes = await Route.find({
+      area: areaId,
+      isDeleted: false,
+      status: "Active",
+    })
+      .populate("area", "areaName areaCode city district state pincode")
+      .populate("salesManager", "fullName mobile")
+      .populate("salesmen", "fullName mobile")
+      .populate("distributor", "fullName mobile")
+      .sort({ routeName: 1 });
 
-        return res.status(500).json({
+    return res.status(200).json({
+      success: true,
+      message: "Routes fetched successfully",
+      count: routes.length,
+      data: routes,
+    });
+  } catch (error) {
+    console.error("Get Routes By Area Error:", error);
 
-            success: false,
-
-            message: error.message
-
-        });
-
-    }
-
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch routes",
+      error: error.message,
+    });
+  }
 };

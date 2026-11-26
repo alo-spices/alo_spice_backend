@@ -83,12 +83,12 @@ POST http://localhost:3002/api/caret-areas
 Content-Type: application/json
 
 {
-  "areaName": "Narasapuram",
-  "areaCode": "NSP001",
-  "city": "Narasapuram",
-  "district": "West Godavari",
-  "state": "Andhra Pradesh",
-  "pincode": "534275"
+   "areaName": "Nizampet - Pragathi Nagar",
+  "areaCode": "NZP001",
+  "city": "Hyderabad",
+  "district": "Medchal-Malkajgiri",
+  "state": "Telangana",
+  "pincode": "500090"
 }
 
 ###
@@ -185,12 +185,12 @@ POST  http://localhost:3002/api/create-routes
 Content-Type: application/json
 
 {
-    "routeName": "Bhimavaram Route 1",
-    "routeCode": "BVR001",
-    "area": "6a217a025d5549e7f55a0973",
-    "description": "Main Bhimavaram Market Route",
-    "monthlySalesTarget": 500000,
-    "monthlyCollectionTarget": 450000
+    "area": "6b081b038f54cde5e0286a0b",
+ "routeName": "JNTU Main Road",
+  "routeCode": "JNTR001",
+  "description": "JNTU main road retail and wholesale shops",
+  "monthlySalesTarget": 500000,
+  "monthlyCollectionTarget": 450000
 }
 
 ###
@@ -224,9 +224,8 @@ Content-Type: application/json
     "ownerName": "Ramesh",
     "mobile": "9876543210",
     "whatsappNumber": "9876543210",
-    "area": "6aace221283ee01d5bfdc150",
-    "route": "6aace235283ee01d5bfdc157",
-    "assignedSalesman": "6aacf818283ee01d5bfdc1cf",
+    "area": "6b081b038f54cde5e0286a0b",
+    "route": "6b081be28f54cde5e0286a1d",
     "address": "Main Road",
     "city": "Bhimavaram",
     "district": "West Godavari",
